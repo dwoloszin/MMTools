@@ -9,7 +9,11 @@ namespace MoreMountains.Tools
 	/// </summary>
 	public class RigidbodyInterface : MonoBehaviour 
 	{	
-	    public Vector3 position
+		/// <summary>
+		/// Returns the rigidbody's position
+		/// </summary>
+		/// <value>The position.</value>
+		public Vector3 position
 	    {
 	        get
 	        {
@@ -25,6 +29,20 @@ namespace MoreMountains.Tools
 	        }
 	        set { }
 	    }
+
+		public Rigidbody2D InternalRigidBody2D 
+		{
+			get {
+				return _rigidbody2D;
+			}
+		}
+
+		public Rigidbody InternalRigidBody 
+		{
+			get {
+				return _rigidbody;
+			}
+		} 
 
 		/// <summary>
 		/// Initialization
@@ -119,6 +137,32 @@ namespace MoreMountains.Tools
 	            _rigidbody.MovePosition(newPosition);
 	        }
 	    }
+
+
+
+		public virtual void ResetAngularVelocity()
+		{
+			if (_mode == "2D")
+			{
+				_rigidbody2D.angularVelocity = 0;
+			}
+			if (_mode == "3D")
+			{
+				_rigidbody.angularVelocity = Vector3.zero;
+			}	
+		}
+
+		public virtual void ResetRotation()
+		{
+			if (_mode == "2D")
+			{
+				_rigidbody2D.rotation = 0;
+			}
+			if (_mode == "3D")
+			{
+				_rigidbody.rotation = Quaternion.identity;
+			}	
+		}
 			
 		
 		/// <summary>
@@ -151,6 +195,44 @@ namespace MoreMountains.Tools
 			if (_mode == "3D")
 			{			
 				GetComponent<Collider>().enabled=status;
+			}
+		}
+
+		/// <summary>
+		/// Use this to check if you're dealing with a 3D object
+		/// </summary>
+		/// <value><c>true</c> if this instance is3 d; otherwise, <c>false</c>.</value>
+		public bool Is3D 
+		{ 
+			get
+	        {
+				if (_mode=="3D") 
+				{ 
+					return true; 
+				} 
+				else 
+				{ 
+					return false; 
+				}
+			}
+		}
+
+		/// <summary>
+		/// Use this to check if you're dealing with a 2D object
+		/// </summary>
+		/// <value>The position.</value>
+		public bool Is2D 
+		{ 
+			get
+	        {
+				if (_mode=="2D") 
+				{ 
+					return true; 
+				} 
+				else
+				{ 
+					return false; 
+				}
 			}
 		}
 	}

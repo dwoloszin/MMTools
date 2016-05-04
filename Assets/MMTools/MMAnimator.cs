@@ -23,6 +23,12 @@ namespace MoreMountains.Tools
 				animator.SetBool(parameterName,value);
 		}
 
+		public static void UpdateAnimatorTrigger(Animator animator, string parameterName)
+		{
+			if (animator.HasParameterOfType (parameterName, AnimatorControllerParameterType.Trigger))
+				animator.SetTrigger(parameterName);
+		}
+
 		/// <summary>
 		/// Triggers an animator trigger.
 		/// </summary>

@@ -17,22 +17,44 @@ namespace MoreMountains.Tools
 		public static MMConsole _Console; 
 
 		/// <summary>
-		/// Draws a debug ray and does the actual raycast
+		/// Draws a debug ray in 2D and does the actual raycast
 		/// </summary>
-		/// <returns>The cast.</returns>
+		/// <returns>The raycast hit.</returns>
 		/// <param name="rayOriginPoint">Ray origin point.</param>
 		/// <param name="rayDirection">Ray direction.</param>
 		/// <param name="rayDistance">Ray distance.</param>
 		/// <param name="mask">Mask.</param>
 		/// <param name="debug">If set to <c>true</c> debug.</param>
 		/// <param name="color">Color.</param>
-		public static RaycastHit2D RayCast(Vector2 rayOriginPoint, Vector2 rayDirection, float rayDistance, LayerMask mask,Color color,bool drawGizmo=false)
+		public static RaycastHit2D RayCast(Vector2 rayOriginPoint, Vector2 rayDirection, float rayDistance, LayerMask mask,bool debug,Color color,bool drawGizmo=false)
 		{	
 			if (drawGizmo) 
 			{
 				Debug.DrawRay (rayOriginPoint, rayDirection * rayDistance, color);
 			}
 			return Physics2D.Raycast(rayOriginPoint,rayDirection,rayDistance,mask);		
+		}
+
+		/// <summary>
+		/// Draws a debug ray in 3D and does the actual raycast
+		/// </summary>
+		/// <returns>The raycast hit.</returns>
+		/// <param name="rayOriginPoint">Ray origin point.</param>
+		/// <param name="rayDirection">Ray direction.</param>
+		/// <param name="rayDistance">Ray distance.</param>
+		/// <param name="mask">Mask.</param>
+		/// <param name="debug">If set to <c>true</c> debug.</param>
+		/// <param name="color">Color.</param>
+		/// <param name="drawGizmo">If set to <c>true</c> draw gizmo.</param>
+		public static RaycastHit Raycast3D(Vector3 rayOriginPoint, Vector2 rayDirection, float rayDistance, LayerMask mask,bool debug,Color color,bool drawGizmo=false)
+		{
+			if (drawGizmo) 
+			{
+				Debug.DrawRay (rayOriginPoint, rayDirection * rayDistance, color);
+			}
+			RaycastHit hit;
+			Physics.Raycast(rayOriginPoint,rayDirection,out hit,rayDistance,mask);	
+			return hit;
 		}
 
 		/// <summary>
@@ -145,41 +167,36 @@ namespace MoreMountains.Tools
 		public static void DrawHandlesBounds(Bounds bounds, Color color)
 		{
 			#if UNITY_EDITOR
-				Vector3 boundsCenter = bounds.center;
-			    Vector3 boundsExtents = bounds.extents;
-			  
-				Vector3 v3FrontTopLeft     = new Vector3(boundsCenter.x - boundsExtents.x, boundsCenter.y + boundsExtents.y, boundsCenter.z - boundsExtents.z);  // Front top left corner
-				Vector3 v3FrontTopRight    = new Vector3(boundsCenter.x + boundsExtents.x, boundsCenter.y + boundsExtents.y, boundsCenter.z - boundsExtents.z);  // Front top right corner
-				Vector3 v3FrontBottomLeft  = new Vector3(boundsCenter.x - boundsExtents.x, boundsCenter.y - boundsExtents.y, boundsCenter.z - boundsExtents.z);  // Front bottom left corner
-				Vector3 v3FrontBottomRight = new Vector3(boundsCenter.x + boundsExtents.x, boundsCenter.y - boundsExtents.y, boundsCenter.z - boundsExtents.z);  // Front bottom right corner
-				Vector3 v3BackTopLeft      = new Vector3(boundsCenter.x - boundsExtents.x, boundsCenter.y + boundsExtents.y, boundsCenter.z + boundsExtents.z);  // Back top left corner
-				Vector3 v3BackTopRight     = new Vector3(boundsCenter.x + boundsExtents.x, boundsCenter.y + boundsExtents.y, boundsCenter.z + boundsExtents.z);  // Back top right corner
-				Vector3 v3BackBottomLeft   = new Vector3(boundsCenter.x - boundsExtents.x, boundsCenter.y - boundsExtents.y, boundsCenter.z + boundsExtents.z);  // Back bottom left corner
-				Vector3 v3BackBottomRight  = new Vector3(boundsCenter.x + boundsExtents.x, boundsCenter.y - boundsExtents.y, boundsCenter.z + boundsExtents.z);  // Back bottom right corner
+			Vector3 boundsCenter = bounds.center;
+		    Vector3 boundsExtents = bounds.extents;
+		  
+			Vector3 v3FrontTopLeft     = new Vector3(boundsCenter.x - boundsExtents.x, boundsCenter.y + boundsExtents.y, boundsCenter.z - boundsExtents.z);  // Front top left corner
+			Vector3 v3FrontTopRight    = new Vector3(boundsCenter.x + boundsExtents.x, boundsCenter.y + boundsExtents.y, boundsCenter.z - boundsExtents.z);  // Front top right corner
+			Vector3 v3FrontBottomLeft  = new Vector3(boundsCenter.x - boundsExtents.x, boundsCenter.y - boundsExtents.y, boundsCenter.z - boundsExtents.z);  // Front bottom left corner
+			Vector3 v3FrontBottomRight = new Vector3(boundsCenter.x + boundsExtents.x, boundsCenter.y - boundsExtents.y, boundsCenter.z - boundsExtents.z);  // Front bottom right corner
+			Vector3 v3BackTopLeft      = new Vector3(boundsCenter.x - boundsExtents.x, boundsCenter.y + boundsExtents.y, boundsCenter.z + boundsExtents.z);  // Back top left corner
+			Vector3 v3BackTopRight     = new Vector3(boundsCenter.x + boundsExtents.x, boundsCenter.y + boundsExtents.y, boundsCenter.z + boundsExtents.z);  // Back top right corner
+			Vector3 v3BackBottomLeft   = new Vector3(boundsCenter.x - boundsExtents.x, boundsCenter.y - boundsExtents.y, boundsCenter.z + boundsExtents.z);  // Back bottom left corner
+			Vector3 v3BackBottomRight  = new Vector3(boundsCenter.x + boundsExtents.x, boundsCenter.y - boundsExtents.y, boundsCenter.z + boundsExtents.z);  // Back bottom right corner
 
-				Handles.color = color;
 
-				Handles.DrawLine (v3FrontTopLeft, v3FrontTopRight);
-				Handles.DrawLine (v3FrontTopRight, v3FrontBottomRight);
-				Handles.DrawLine (v3FrontBottomRight, v3FrontBottomLeft);
-				Handles.DrawLine (v3FrontBottomLeft, v3FrontTopLeft);
-			         
-				Handles.DrawLine (v3BackTopLeft, v3BackTopRight);
-				Handles.DrawLine (v3BackTopRight, v3BackBottomRight);
-				Handles.DrawLine (v3BackBottomRight, v3BackBottomLeft);
-				Handles.DrawLine (v3BackBottomLeft, v3BackTopLeft);
-			         
-				Handles.DrawLine (v3FrontTopLeft, v3BackTopLeft);
-				Handles.DrawLine (v3FrontTopRight, v3BackTopRight);
-				Handles.DrawLine (v3FrontBottomRight, v3BackBottomRight);
-				Handles.DrawLine (v3FrontBottomLeft, v3BackBottomLeft);  
+			Handles.color = color;
+
+			Handles.DrawLine (v3FrontTopLeft, v3FrontTopRight);
+			Handles.DrawLine (v3FrontTopRight, v3FrontBottomRight);
+			Handles.DrawLine (v3FrontBottomRight, v3FrontBottomLeft);
+			Handles.DrawLine (v3FrontBottomLeft, v3FrontTopLeft);
+		         
+			Handles.DrawLine (v3BackTopLeft, v3BackTopRight);
+			Handles.DrawLine (v3BackTopRight, v3BackBottomRight);
+			Handles.DrawLine (v3BackBottomRight, v3BackBottomLeft);
+			Handles.DrawLine (v3BackBottomLeft, v3BackTopLeft);
+		         
+			Handles.DrawLine (v3FrontTopLeft, v3BackTopLeft);
+			Handles.DrawLine (v3FrontTopRight, v3BackTopRight);
+			Handles.DrawLine (v3FrontBottomRight, v3BackBottomRight);
+			Handles.DrawLine (v3FrontBottomLeft, v3BackBottomLeft);  
 			#endif
-		}
-
-		public static void DrawGizmoPoint(Vector3 position, float size, Color color)
-		{
-	    	Gizmos.color = color;
-			Gizmos.DrawWireSphere(position,size);
 		}
 
 

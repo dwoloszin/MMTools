@@ -57,6 +57,7 @@ namespace MoreMountains.Tools
 			GameObject newGameObject = (GameObject)Instantiate(typeOfObject);
 			newGameObject.gameObject.SetActive(false);
 			newGameObject.transform.parent = _waitingPool.transform;
+			newGameObject.name=typeOfObject.name+"-"+_pooledGameObjects.Count;
 			_pooledGameObjects.Add(newGameObject);	
 			return newGameObject;
 		}
