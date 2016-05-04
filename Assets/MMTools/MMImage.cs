@@ -14,6 +14,16 @@ namespace MoreMountains.Tools
 	    /// </summary>
 	    public static IEnumerator Flicker(Renderer renderer, Color flickerColor, float flickerSpeed, float flickerDuration)
 	    {
+	    	if (renderer==null)
+	    	{
+	    		yield return null;
+	    	}
+
+	    	if (!renderer.material.HasProperty("_Color"))
+	    	{
+	    		yield return null;
+	    	}
+
 	        Color initialColor = renderer.material.color;
 	        float flickerStop = Time.time + flickerDuration;
 

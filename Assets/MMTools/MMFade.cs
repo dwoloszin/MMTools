@@ -70,6 +70,11 @@ namespace MoreMountains.Tools
 			if (target==null)
 				yield break;
 
+			if (!target.material.HasProperty ("_Color")) 
+			{
+		        yield return null;
+		    }
+
 			float alpha = target.material.color.a;
 
 			float t=0f;

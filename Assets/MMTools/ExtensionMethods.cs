@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System;
-using System.Reflection;
 
 namespace MoreMountains.Tools
 {	
@@ -27,6 +25,5 @@ namespace MoreMountains.Tools
 			}
 			return false;
 		}	
-
 	}
 }
