@@ -72,7 +72,8 @@ namespace MoreMountains.Tools
 		/// Triggers the bound pointer up action
 		/// </summary>
 		public virtual void OnPointerUp(PointerEventData data)
-	    {
+		{
+			MMDebug.DebugLogTime("on pointer up");
 	        _zonePressed = false;
 			if (_canvasGroup!=null)
 			{
