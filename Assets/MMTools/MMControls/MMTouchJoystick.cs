@@ -3,6 +3,7 @@ using System.Collections;
 using MoreMountains.Tools;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using System;
 
 namespace MoreMountains.MultiplayerEngine 
 {
@@ -17,122 +18,161 @@ namespace MoreMountains.MultiplayerEngine
 	[RequireComponent(typeof(CanvasGroup))]
 	public class MMTouchJoystick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 	{
+		[Header("Camera")]
+		public Camera TargetCamera;
 
-		[Header("Enabled Axis")]
+		[Header("Pressed Behaviour")]
+		[Information("Here you can set the opacity of the joystick when it's pressed. Useful for visual feedback.",InformationAttribute.InformationType.Info,false)]
+		/// the new opacity to apply to the canvas group when the button is pressed
+		public float PressedOpacity = 0.5f;
+
+		[Header("Axis")]
+		[Information("Choose if you want a joystick limited to one axis or not, and define the MaxRange. The MaxRange is the maximum distance from its initial center position you can drag the joystick to.",InformationAttribute.InformationType.Info,false)]
+		/// Is horizontal axis allowed
+		public bool HorizontalAxisEnabled = true;
+		/// Is vertical axis allowed
+		public bool VerticalAxisEnabled = true;
+		/// The max range allowed
+		[Information("And finally you can bind a function to get your joystick's values. Your method has to have a Vector2 as a parameter. Drag your object here and select the method.",InformationAttribute.InformationType.Info,true)]
+		public float MaxRange = 1.5f;
+
+		[Header("Binding")]
 		/// The method(s) to call when the button gets pressed down
 		public JoystickEvent JoystickValue;
 
-		/// Is horizontal axis allowed
-		public bool HorizontalEnabled = true;
-		/// Is vertical axis allowed
-		public bool VerticalEnabled = true;
-
 		/// Store neutral position of the stick
 		protected Vector2 _neutralPosition;
-		/// The max range allowed
-		public float _maxRange = 40f;
 		/// Current horizontal and vertical values of the joystick (from -1 to 1)
 		protected Vector2 _joystickValue;
-
-
+		/// The canvas rect transform we're working with.
 		protected RectTransform _canvasRectTransform;
+		/// working vector
+		protected Vector2 _newTargetPosition;
+
+		protected int _currentPointerID;
+		protected bool _currentlyDragging=false;
+
 
 		/// <summary>
-		/// Start this instance.
+		/// On Start, we get our working canvas, and we set our neutral position
 		/// </summary>
 		protected virtual void Start () 
 		{
-			_neutralPosition = GetComponent<RectTransform>().transform.position;
 			_canvasRectTransform = GetComponentInParent<Canvas>().transform as RectTransform;
+			SetNeutralPosition();
+			if (TargetCamera==null)
+			{
+				throw new Exception("MMTouchJoystick : you have to set a target camera");
+			}
 		}
 		
 		/// <summary>
-		/// Update this instance.
+		/// On Update we check for an orientation change if needed, and send our input values.
 		/// </summary>
 		void Update () 
 		{
-			// We send InputManager positions when axis are allowed
-			if (HorizontalEnabled || VerticalEnabled) 
+			if (JoystickValue!=null)
 			{
-				JoystickValue.Invoke(_joystickValue);
+				if (HorizontalAxisEnabled || VerticalAxisEnabled) 
+				{
+					JoystickValue.Invoke(_joystickValue);
+				}
 			}
 		}
 
 		/// <summary>
-		/// When draging stick (finger sliding on the touch surface).
+		/// Sets the neutral position of the joystick
+		/// </summary>
+		protected virtual void SetNeutralPosition()
+		{
+			_neutralPosition = GetComponent<RectTransform>().transform.position;
+		}
+
+		/// <summary>
+		/// Handles dragging of the joystick
 		/// </summary>
 		public virtual void OnDrag(PointerEventData data) 
 		{
-			Vector2 newTargetPosition;
+			if (data.pointerId != _currentPointerID)
+			{
+				return;
+			}
 
+			MMDebug.DebugOnScreen("current pointer ID : "+data.pointerId);
+
+			// if we're in "screen space - camera" render mode
 			if (data.pressEventCamera!=null)
 			{
-				newTargetPosition = data.pressEventCamera.ScreenToWorldPoint(Input.mousePosition);
+				_newTargetPosition = data.pressEventCamera.ScreenToWorldPoint(Input.mousePosition);
+			}
+			// otherwise
+			else
+			{
+				_newTargetPosition = Input.mousePosition;
+			}
+
+			// We clamp the stick's position to let it move only inside its defined max range
+			_newTargetPosition = Vector2.ClampMagnitude(_newTargetPosition - _neutralPosition, MaxRange);
+
+			// If we haven't authorized certain axis, we force them to zero
+			if (!HorizontalAxisEnabled) 
+			{
+				_newTargetPosition.x = 0;
+			}
+			if (!VerticalAxisEnabled) 
+			{
+				_newTargetPosition.y = 0;
+
+			}
+			// For each axis, we evaluate its lerped value (-1...1)
+			_joystickValue.x = EvaluateInputValue(_newTargetPosition.x);
+			_joystickValue.y = EvaluateInputValue(_newTargetPosition.y);
+
+			// We move the joystick to its dragged position
+			transform.position = _neutralPosition + _newTargetPosition;
+		}
+
+		/// <summary>
+		/// Mandatory empty IPointerDownHandler interface implementation
+		/// </summary>
+		/// <param name="data">Data.</param>
+		public virtual void OnPointerDown(PointerEventData data)
+	    {
+			if ((_currentlyDragging) && (data.pointerId != _currentPointerID))
+			{
+				return;
 			}
 			else
 			{
-				newTargetPosition = Input.mousePosition;
+				_currentPointerID=data.pointerId;
+				_currentlyDragging=true;
 			}
-
-			// We clamp stick position to let it moves only inside the joystick circle
-			Vector2 newClampedPosition = Vector2.ClampMagnitude(newTargetPosition - _neutralPosition, _maxRange);
-
-			if (!HorizontalEnabled) 
-			{
-				newClampedPosition.x = 0;
-			}
-			if (!VerticalEnabled) 
-			{
-				newClampedPosition.y = 0;
-			}
-			// For each axis, we evaluation its lerped value (-1...1)
-			_joystickValue.x = EvaluateInputValue(newClampedPosition.x);
-			_joystickValue.y = EvaluateInputValue(newClampedPosition.y);
-
-			transform.position = _neutralPosition + newClampedPosition;
-		}
-
-		public virtual void OnPointerDown(PointerEventData data)
-	    {
-	        //MMDebug.DebugLogTime("on pointer down");
 	    }
 
 		/// <summary>
-		/// Raises the pointer up event.
-		/// Called when finger is up and doesn't touch the surface anymore.
-		/// We reset stick position
+		/// What happens when the stick is released
 		/// </summary>
 		public virtual void OnPointerUp(PointerEventData data)
 		{
-			//MMDebug.DebugLogTime("on pointer up");
-			// We neutral position and axis values
+			if ((_currentlyDragging) && (data.pointerId != _currentPointerID))
+			{
+				return;
+			}
+			// we reset the stick's position
 			transform.position = _neutralPosition;
 			_joystickValue.x = 0f;
 			_joystickValue.y = 0f;
+			_currentlyDragging=false;
 		}
 
 		/// <summary>
-		/// We calculate axis value from the interval between neutral position, current stick position (vectorPosition) and max range
+		/// We compute the axis value from the interval between neutral position, current stick position (vectorPosition) and max range
 		/// </summary>
 		/// <returns>The axis value, a float between -1 and 1</returns>
 		/// <param name="vectorPosition">stick position.</param>
 		protected virtual float EvaluateInputValue(float vectorPosition) 
 		{
-			return Mathf.InverseLerp(0, _maxRange, Mathf.Abs(vectorPosition)) * Mathf.Sign(vectorPosition);
+			return Mathf.InverseLerp(0, MaxRange, Mathf.Abs(vectorPosition)) * Mathf.Sign(vectorPosition);
 		}
-
-		Vector2 ClampToWindow (PointerEventData data) 
-		{
-        Vector2 rawPointerPosition = data.position;
-
-        Vector3[] canvasCorners = new Vector3[4];
-        _canvasRectTransform.GetWorldCorners (canvasCorners);
-        
-        float clampedX = Mathf.Clamp (rawPointerPosition.x, canvasCorners[0].x, canvasCorners[2].x);
-        float clampedY = Mathf.Clamp (rawPointerPosition.y, canvasCorners[0].y, canvasCorners[2].y);
-
-        Vector2 newPointerPosition = new Vector2 (clampedX, clampedY);
-        return newPointerPosition;
-   		 }
 	}
 }

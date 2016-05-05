@@ -23,15 +23,18 @@ namespace MoreMountains.Tools
 		/// The method(s) to call while the button is being pressed
 		public UnityEvent ButtonPressed;
 
-		[Header("Behaviour")]
+		[Header("Pressed Behaviour")]
+		[Information("Here you can set the opacity of the button when it's pressed. Useful for visual feedback.",InformationAttribute.InformationType.Info,false)]
 		/// the new opacity to apply to the canvas group when the button is pressed
 		public float PressedOpacity = 0.5f;
-
 
 	    protected bool _zonePressed = false;
 	    protected CanvasGroup _canvasGroup;
 	    protected float _initialOpacity;
 
+	    /// <summary>
+	    /// On Start, we get our canvasgroup and set our initial alpha
+	    /// </summary>
 	    protected virtual void Start()
 	    {
 			_canvasGroup = GetComponent<CanvasGroup>();
