@@ -26,7 +26,7 @@ namespace MoreMountains.Tools
 		/// <param name="mask">Mask.</param>
 		/// <param name="debug">If set to <c>true</c> debug.</param>
 		/// <param name="color">Color.</param>
-		public static RaycastHit2D RayCast(Vector2 rayOriginPoint, Vector2 rayDirection, float rayDistance, LayerMask mask,bool debug,Color color,bool drawGizmo=false)
+		public static RaycastHit2D RayCast(Vector2 rayOriginPoint, Vector2 rayDirection, float rayDistance, LayerMask mask, Color color,bool drawGizmo=false)
 		{	
 			if (drawGizmo) 
 			{
@@ -197,6 +197,18 @@ namespace MoreMountains.Tools
 			Handles.DrawLine (v3FrontBottomRight, v3BackBottomRight);
 			Handles.DrawLine (v3FrontBottomLeft, v3BackBottomLeft);  
 			#endif
+		}
+
+		/// <summary>
+		/// Draws a gizmo sphere of the specified size and color at a position
+		/// </summary>
+		/// <param name="position">Position.</param>
+		/// <param name="size">Size.</param>
+		/// <param name="color">Color.</param>
+		public static void DrawGizmoPoint(Vector3 position, float size, Color color)
+		{
+	    	Gizmos.color = color;
+			Gizmos.DrawWireSphere(position,size);
 		}
 
 
