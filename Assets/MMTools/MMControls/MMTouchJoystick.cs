@@ -16,7 +16,7 @@ namespace MoreMountains.MultiplayerEngine
 	/// </summary>
 	[RequireComponent(typeof(Rect))]
 	[RequireComponent(typeof(CanvasGroup))]
-	public class MMTouchJoystick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
+	public class MMTouchJoystick : MonoBehaviour
 	{
 		[Header("Camera")]
 		public Camera TargetCamera;
@@ -49,8 +49,7 @@ namespace MoreMountains.MultiplayerEngine
 		/// working vector
 		protected Vector2 _newTargetPosition;
 
-		protected int _currentPointerID;
-		protected bool _currentlyDragging=false;
+		protected RenderMode _parentCanvasRenderMode;
 
 
 		/// <summary>
@@ -65,6 +64,8 @@ namespace MoreMountains.MultiplayerEngine
 			{
 				throw new Exception("MMTouchJoystick : you have to set a target camera");
 			}
+
+			_parentCanvasRenderMode = GetComponentInParent<Canvas>().renderMode;
 		}
 		
 		/// <summary>
@@ -92,31 +93,17 @@ namespace MoreMountains.MultiplayerEngine
 		/// <summary>
 		/// Handles dragging of the joystick
 		/// </summary>
-		public virtual void OnDrag(PointerEventData data) 
+		public virtual void OnDrag() 
 		{
-			//RENAUD : j'ai essayé de stocker/comparer le current pointer ID avec celui que je reçois, mais ça n'a pas l'air de marcher.
-			if (data.pointerId != _currentPointerID)
-			{
-				return;
-			}
-
-			MMDebug.DebugOnScreen("current pointer ID : "+data.pointerId);
-
 			// if we're in "screen space - camera" render mode
-			if (data.pressEventCamera!=null)
+			if (_parentCanvasRenderMode==RenderMode.ScreenSpaceCamera)
 			{
-				_newTargetPosition = data.pressEventCamera.ScreenToWorldPoint(Input.mousePosition);
+				_newTargetPosition = TargetCamera.ScreenToWorldPoint(Input.mousePosition);
 			}
 			// otherwise
 			else
 			{
 				_newTargetPosition = Input.mousePosition;
-			}
-
-			// j'ai aussi essayé de quitter si le pointerID est loin de l'origine, mais ça bloque le joystick du coup
-			if (Vector2.Distance(_newTargetPosition, _neutralPosition) > MaxRange*2)
-			{
-				return;
 			}
 
 			// We clamp the stick's position to let it move only inside its defined max range
@@ -141,36 +128,14 @@ namespace MoreMountains.MultiplayerEngine
 		}
 
 		/// <summary>
-		/// Mandatory empty IPointerDownHandler interface implementation
-		/// </summary>
-		/// <param name="data">Data.</param>
-		public virtual void OnPointerDown(PointerEventData data)
-	    {
-			if ((_currentlyDragging) && (data.pointerId != _currentPointerID))
-			{
-				return;
-			}
-			else
-			{
-				_currentPointerID=data.pointerId;
-				_currentlyDragging=true;
-			}
-	    }
-
-		/// <summary>
 		/// What happens when the stick is released
 		/// </summary>
-		public virtual void OnPointerUp(PointerEventData data)
+		public virtual void OnPointerUp()
 		{
-			if ((_currentlyDragging) && (data.pointerId != _currentPointerID))
-			{
-				return;
-			}
 			// we reset the stick's position
 			transform.position = _neutralPosition;
 			_joystickValue.x = 0f;
 			_joystickValue.y = 0f;
-			_currentlyDragging=false;
 		}
 
 		/// <summary>
