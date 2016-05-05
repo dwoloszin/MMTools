@@ -7,8 +7,13 @@ namespace MoreMountains.CorgiEngine
 	/// <summary>
 	/// This persistent singleton handles the inputs and sends commands to the player
 	/// </summary>
-	public class InputManager : PersistentSingleton<InputManager>
+	public class MMControlsTestInputManager : MonoBehaviour
 	{
+
+		public virtual void Movement(Vector2 movement)
+		{
+			MMDebug.DebugOnScreen("horizontal movement",movement);
+		}
 		
 		public virtual void Jump()
 		{

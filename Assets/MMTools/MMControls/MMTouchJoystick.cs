@@ -2,9 +2,12 @@
 using System.Collections;
 using MoreMountains.Tools;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 namespace MoreMountains.MultiplayerEngine 
 {
+	[System.Serializable]
+	public class JoystickEvent : UnityEvent<Vector2> {}
 
 	/// <summary>
 	/// Joystick input class.
@@ -15,41 +18,32 @@ namespace MoreMountains.MultiplayerEngine
 	public class MMTouchJoystick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 	{
 
-		[Header("Axis allowed")]
-		/// <summary>
+		[Header("Enabled Axis")]
+		/// The method(s) to call when the button gets pressed down
+		public JoystickEvent JoystickValue;
+
 		/// Is horizontal axis allowed
-		/// </summary>
-		public bool Horizontal = true;
-		/// <summary>
+		public bool HorizontalEnabled = true;
 		/// Is vertical axis allowed
-		/// </summary>
-		public bool Vertical = true;
+		public bool VerticalEnabled = true;
 
-		/// <summary>
 		/// Store neutral position of the stick
-		/// </summary>
 		protected Vector2 _neutralPosition;
-
-		/// <summary>
 		/// The max range allowed
-		/// </summary>
 		public float _maxRange = 40f;
+		/// Current horizontal and vertical values of the joystick (from -1 to 1)
+		protected Vector2 _joystickValue;
 
-		/// <summary>
-		/// Current horizontal axis value (from -1 to +1)
-		/// </summary>
-		protected float x = 0f;
 
-		/// <summary>
-		/// Current vertical axis value (from -1 to +1)
-		/// </summary>
-		protected float y = 0f;
+		protected RectTransform _canvasRectTransform;
 
 		/// <summary>
 		/// Start this instance.
 		/// </summary>
-		protected virtual void Start () {
+		protected virtual void Start () 
+		{
 			_neutralPosition = GetComponent<RectTransform>().transform.position;
+			_canvasRectTransform = GetComponentInParent<Canvas>().transform as RectTransform;
 		}
 		
 		/// <summary>
@@ -58,13 +52,9 @@ namespace MoreMountains.MultiplayerEngine
 		void Update () 
 		{
 			// We send InputManager positions when axis are allowed
-			if (Horizontal) 
+			if (HorizontalEnabled || VerticalEnabled) 
 			{
-				//InputManager.Instance.SendMessage("HorizontalPosition", x);
-			}
-			if (Vertical) 
-			{
-				//InputManager.Instance.SendMessage("VerticalPosition", y);
+				JoystickValue.Invoke(_joystickValue);
 			}
 		}
 
@@ -73,28 +63,38 @@ namespace MoreMountains.MultiplayerEngine
 		/// </summary>
 		public virtual void OnDrag(PointerEventData data) 
 		{
-			Vector2 newTargetPosition = Input.mousePosition;
-			Vector2 convertedTargetPosition = GUIUtility.ScreenToGUIPoint(newTargetPosition);
-			MMDebug.DebugDrawArrow(transform.position,newTargetPosition,Color.yellow);
-			// We clamp stick position to let it moves only inside the joystick circle
-			Vector2 newClampedPosition = Vector2.ClampMagnitude(convertedTargetPosition - _neutralPosition, _maxRange);
+			Vector2 newTargetPosition;
 
-			if (!Horizontal) {
+			if (data.pressEventCamera!=null)
+			{
+				newTargetPosition = data.pressEventCamera.ScreenToWorldPoint(Input.mousePosition);
+			}
+			else
+			{
+				newTargetPosition = Input.mousePosition;
+			}
+
+			// We clamp stick position to let it moves only inside the joystick circle
+			Vector2 newClampedPosition = Vector2.ClampMagnitude(newTargetPosition - _neutralPosition, _maxRange);
+
+			if (!HorizontalEnabled) 
+			{
 				newClampedPosition.x = 0;
 			}
-			if (!Vertical) {
+			if (!VerticalEnabled) 
+			{
 				newClampedPosition.y = 0;
 			}
 			// For each axis, we evaluation its lerped value (-1...1)
-			x = EvaluateInputValue(newClampedPosition.x);
-			y = EvaluateInputValue(newClampedPosition.y);
+			_joystickValue.x = EvaluateInputValue(newClampedPosition.x);
+			_joystickValue.y = EvaluateInputValue(newClampedPosition.y);
 
 			transform.position = _neutralPosition + newClampedPosition;
 		}
 
 		public virtual void OnPointerDown(PointerEventData data)
 	    {
-	        MMDebug.DebugLogTime("on pointer down");
+	        //MMDebug.DebugLogTime("on pointer down");
 	    }
 
 		/// <summary>
@@ -104,11 +104,11 @@ namespace MoreMountains.MultiplayerEngine
 		/// </summary>
 		public virtual void OnPointerUp(PointerEventData data)
 		{
-			MMDebug.DebugLogTime("on pointer up");
+			//MMDebug.DebugLogTime("on pointer up");
 			// We neutral position and axis values
 			transform.position = _neutralPosition;
-			x = 0f;
-			y = 0f;
+			_joystickValue.x = 0f;
+			_joystickValue.y = 0f;
 		}
 
 		/// <summary>
@@ -120,5 +120,19 @@ namespace MoreMountains.MultiplayerEngine
 		{
 			return Mathf.InverseLerp(0, _maxRange, Mathf.Abs(vectorPosition)) * Mathf.Sign(vectorPosition);
 		}
+
+		Vector2 ClampToWindow (PointerEventData data) 
+		{
+        Vector2 rawPointerPosition = data.position;
+
+        Vector3[] canvasCorners = new Vector3[4];
+        _canvasRectTransform.GetWorldCorners (canvasCorners);
+        
+        float clampedX = Mathf.Clamp (rawPointerPosition.x, canvasCorners[0].x, canvasCorners[2].x);
+        float clampedY = Mathf.Clamp (rawPointerPosition.y, canvasCorners[0].y, canvasCorners[2].y);
+
+        Vector2 newPointerPosition = new Vector2 (clampedX, clampedY);
+        return newPointerPosition;
+   		 }
 	}
 }
