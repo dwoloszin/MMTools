@@ -58,6 +58,7 @@ namespace MoreMountains.MultiplayerEngine
 		/// </summary>
 		protected virtual void Start () 
 		{
+			Input.multiTouchEnabled=true;
 			_canvasRectTransform = GetComponentInParent<Canvas>().transform as RectTransform;
 			SetNeutralPosition();
 			if (TargetCamera==null)
@@ -93,6 +94,7 @@ namespace MoreMountains.MultiplayerEngine
 		/// </summary>
 		public virtual void OnDrag(PointerEventData data) 
 		{
+			//RENAUD : j'ai essayé de stocker/comparer le current pointer ID avec celui que je reçois, mais ça n'a pas l'air de marcher.
 			if (data.pointerId != _currentPointerID)
 			{
 				return;
@@ -109,6 +111,12 @@ namespace MoreMountains.MultiplayerEngine
 			else
 			{
 				_newTargetPosition = Input.mousePosition;
+			}
+
+			// j'ai aussi essayé de quitter si le pointerID est loin de l'origine, mais ça bloque le joystick du coup
+			if (Vector2.Distance(_newTargetPosition, _neutralPosition) > MaxRange*2)
+			{
+				return;
 			}
 
 			// We clamp the stick's position to let it move only inside its defined max range
