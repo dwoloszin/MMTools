@@ -95,6 +95,7 @@ namespace MoreMountains.Tools
 	    {
 			if (ButtonPressed != null)
 			{
+				MMDebug.DebugOnScreen(gameObject.name, "Pressed");
 				ButtonPressed.Invoke();
 	        }
 	    }

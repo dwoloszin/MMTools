@@ -16,7 +16,7 @@ namespace MoreMountains.MultiplayerEngine
 	/// </summary>
 	[RequireComponent(typeof(Rect))]
 	[RequireComponent(typeof(CanvasGroup))]
-	public class MMTouchJoystick : MonoBehaviour
+	public class MMTouchJoystick : MonoBehaviour, IDragHandler, IPointerUpHandler
 	{
 		[Header("Camera")]
 		public Camera TargetCamera;
@@ -55,12 +55,12 @@ namespace MoreMountains.MultiplayerEngine
 		/// <summary>
 		/// On Start, we get our working canvas, and we set our neutral position
 		/// </summary>
-		protected virtual void Start () 
+		protected virtual void Start() 
 		{
-			Input.multiTouchEnabled=true;
+			//Input.multiTouchEnabled=true;
 			_canvasRectTransform = GetComponentInParent<Canvas>().transform as RectTransform;
 			SetNeutralPosition();
-			if (TargetCamera==null)
+			if (TargetCamera == null)
 			{
 				throw new Exception("MMTouchJoystick : you have to set a target camera");
 			}
@@ -71,9 +71,9 @@ namespace MoreMountains.MultiplayerEngine
 		/// <summary>
 		/// On Update we check for an orientation change if needed, and send our input values.
 		/// </summary>
-		void Update () 
+		void Update() 
 		{
-			if (JoystickValue!=null)
+			if (JoystickValue != null)
 			{
 				if (HorizontalAxisEnabled || VerticalAxisEnabled) 
 				{
@@ -93,17 +93,17 @@ namespace MoreMountains.MultiplayerEngine
 		/// <summary>
 		/// Handles dragging of the joystick
 		/// </summary>
-		public virtual void OnDrag() 
+		public void OnDrag(PointerEventData eventData)
 		{
 			// if we're in "screen space - camera" render mode
-			if (_parentCanvasRenderMode==RenderMode.ScreenSpaceCamera)
+			if (_parentCanvasRenderMode == RenderMode.ScreenSpaceCamera)
 			{
-				_newTargetPosition = TargetCamera.ScreenToWorldPoint(Input.mousePosition);
+					_newTargetPosition = TargetCamera.ScreenToWorldPoint(eventData.position);
 			}
 			// otherwise
 			else
 			{
-				_newTargetPosition = Input.mousePosition;
+				_newTargetPosition = eventData.position;
 			}
 
 			// We clamp the stick's position to let it move only inside its defined max range
@@ -130,7 +130,7 @@ namespace MoreMountains.MultiplayerEngine
 		/// <summary>
 		/// What happens when the stick is released
 		/// </summary>
-		public virtual void OnPointerUp()
+		public void OnPointerUp(PointerEventData eventData)
 		{
 			// we reset the stick's position
 			transform.position = _neutralPosition;
