@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using System;
 
-namespace MoreMountains.MultiplayerEngine 
+namespace MoreMountains.Tools 
 {
 	[System.Serializable]
 	public class JoystickEvent : UnityEvent<Vector2> {}
@@ -55,7 +55,7 @@ namespace MoreMountains.MultiplayerEngine
 		/// <summary>
 		/// On Start, we get our working canvas, and we set our neutral position
 		/// </summary>
-		protected virtual void Start() 
+		protected virtual void Start()
 		{
 			//Input.multiTouchEnabled=true;
 			_canvasRectTransform = GetComponentInParent<Canvas>().transform as RectTransform;
@@ -67,15 +67,15 @@ namespace MoreMountains.MultiplayerEngine
 
 			_parentCanvasRenderMode = GetComponentInParent<Canvas>().renderMode;
 		}
-		
+
 		/// <summary>
 		/// On Update we check for an orientation change if needed, and send our input values.
 		/// </summary>
-		void Update() 
+		void Update()
 		{
 			if (JoystickValue != null)
 			{
-				if (HorizontalAxisEnabled || VerticalAxisEnabled) 
+				if (HorizontalAxisEnabled || VerticalAxisEnabled)
 				{
 					JoystickValue.Invoke(_joystickValue);
 				}
@@ -110,11 +110,11 @@ namespace MoreMountains.MultiplayerEngine
 			_newTargetPosition = Vector2.ClampMagnitude(_newTargetPosition - _neutralPosition, MaxRange);
 
 			// If we haven't authorized certain axis, we force them to zero
-			if (!HorizontalAxisEnabled) 
+			if (!HorizontalAxisEnabled)
 			{
 				_newTargetPosition.x = 0;
 			}
-			if (!VerticalAxisEnabled) 
+			if (!VerticalAxisEnabled)
 			{
 				_newTargetPosition.y = 0;
 
@@ -143,7 +143,7 @@ namespace MoreMountains.MultiplayerEngine
 		/// </summary>
 		/// <returns>The axis value, a float between -1 and 1</returns>
 		/// <param name="vectorPosition">stick position.</param>
-		protected virtual float EvaluateInputValue(float vectorPosition) 
+		protected virtual float EvaluateInputValue(float vectorPosition)
 		{
 			return Mathf.InverseLerp(0, MaxRange, Mathf.Abs(vectorPosition)) * Mathf.Sign(vectorPosition);
 		}
