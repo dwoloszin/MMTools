@@ -16,7 +16,7 @@ namespace MoreMountains.Tools
 	/// </summary>
 	[RequireComponent(typeof(Rect))]
 	[RequireComponent(typeof(CanvasGroup))]
-	public class MMTouchJoystick : MonoBehaviour, IDragHandler, IPointerUpHandler
+	public class MMTouchJoystick : MonoBehaviour, IDragHandler, IEndDragHandler
 	{
 		[Header("Camera")]
 		public Camera TargetCamera;
@@ -48,6 +48,7 @@ namespace MoreMountains.Tools
 		protected RectTransform _canvasRectTransform;
 		/// working vector
 		protected Vector2 _newTargetPosition;
+		protected Vector3 _newJoystickPosition;
 
 		protected RenderMode _parentCanvasRenderMode;
 
@@ -64,7 +65,6 @@ namespace MoreMountains.Tools
 			{
 				throw new Exception("MMTouchJoystick : you have to set a target camera");
 			}
-
 			_parentCanvasRenderMode = GetComponentInParent<Canvas>().renderMode;
 		}
 
@@ -117,20 +117,22 @@ namespace MoreMountains.Tools
 			if (!VerticalAxisEnabled)
 			{
 				_newTargetPosition.y = 0;
-
 			}
 			// For each axis, we evaluate its lerped value (-1...1)
 			_joystickValue.x = EvaluateInputValue(_newTargetPosition.x);
 			_joystickValue.y = EvaluateInputValue(_newTargetPosition.y);
 
+			_newJoystickPosition = _neutralPosition + _newTargetPosition;
+			_newJoystickPosition.z = 0;
+
 			// We move the joystick to its dragged position
-			transform.position = _neutralPosition + _newTargetPosition;
+			transform.position = _newJoystickPosition;
 		}
 
 		/// <summary>
 		/// What happens when the stick is released
 		/// </summary>
-		public void OnPointerUp(PointerEventData eventData)
+		public void OnEndDrag(PointerEventData eventData)
 		{
 			// we reset the stick's position
 			transform.position = _neutralPosition;
