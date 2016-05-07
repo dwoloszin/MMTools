@@ -51,7 +51,7 @@ namespace MoreMountains.Tools
 		/// working vector
 		protected Vector2 _newTargetPosition;
 		protected Vector3 _newJoystickPosition;
-
+		protected float _initialZPosition;
 		protected RenderMode _parentCanvasRenderMode;
 
 
@@ -67,6 +67,7 @@ namespace MoreMountains.Tools
 				throw new Exception("MMTouchJoystick : you have to set a target camera");
 			}
 			_parentCanvasRenderMode = GetComponentInParent<Canvas>().renderMode;
+			_initialZPosition = transform.position.z;
 		}
 
 		/// <summary>
@@ -124,7 +125,7 @@ namespace MoreMountains.Tools
 			_joystickValue.y = EvaluateInputValue(_newTargetPosition.y);
 
 			_newJoystickPosition = _neutralPosition + _newTargetPosition;
-			_newJoystickPosition.z = 0;
+			_newJoystickPosition.z = _initialZPosition;
 
 			// We move the joystick to its dragged position
 			transform.position = _newJoystickPosition;
