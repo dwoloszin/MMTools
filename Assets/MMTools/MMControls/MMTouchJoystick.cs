@@ -13,6 +13,8 @@ namespace MoreMountains.Tools
 	/// <summary>
 	/// Joystick input class.
 	/// In charge of the behaviour of the joystick mobile touch input.
+	/// Bind its actions from the inspector
+	/// Handles mouse and multi touch
 	/// </summary>
 	[RequireComponent(typeof(Rect))]
 	[RequireComponent(typeof(CanvasGroup))]
@@ -58,7 +60,6 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void Start()
 		{
-			//Input.multiTouchEnabled=true;
 			_canvasRectTransform = GetComponentInParent<Canvas>().transform as RectTransform;
 			SetNeutralPosition();
 			if (TargetCamera == null)

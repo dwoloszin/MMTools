@@ -6,26 +6,29 @@ using UnityEngine.EventSystems;
 
 namespace MoreMountains.Tools
 {	
+	[System.Serializable]
+	public class AxisEvent : UnityEvent<float> {}
+
 	[RequireComponent(typeof(Rect))]
 	[RequireComponent(typeof(CanvasGroup))]
 	/// <summary>
-	/// Add this component to a GUI Image to have it act as a button. 
+	/// Add this component to a GUI Image to have it act as an axis. 
 	/// Bind pressed down, pressed continually and released actions to it from the inspector
 	/// Handles mouse and multi touch
 	/// </summary>
-	public class MMTouchButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+	public class MMTouchAxis : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 	{
 		[Header("Binding")]
-		/// The method(s) to call when the button gets pressed down
-		public UnityEvent ButtonPressedFirstTime;
-		/// The method(s) to call when the button gets released
-		public UnityEvent ButtonReleased;
-		/// The method(s) to call while the button is being pressed
-		public UnityEvent ButtonPressed;
+		/// The method(s) to call when the axis gets pressed down
+		public UnityEvent AxisPressedFirstTime;
+		/// The method(s) to call when the axis gets released
+		public UnityEvent AxisReleased;
+		/// The method(s) to call while the axis is being pressed
+		public AxisEvent AxisPressed;
 
 		[Header("Pressed Behaviour")]
 		[Information("Here you can set the opacity of the button when it's pressed. Useful for visual feedback.",InformationAttribute.InformationType.Info,false)]
-		/// the new opacity to apply to the canvas group when the button is pressed
+		/// the new opacity to apply to the canvas group when the axis is pressed
 		public float PressedOpacity = 0.5f;
 
 	    protected bool _zonePressed = false;
@@ -65,9 +68,9 @@ namespace MoreMountains.Tools
 			{
 				_canvasGroup.alpha=PressedOpacity;
 			}
-			if (ButtonPressedFirstTime!=null)
+			if (AxisPressedFirstTime!=null)
 	        {
-				ButtonPressedFirstTime.Invoke();
+				AxisPressedFirstTime.Invoke();
 	        }
 	    }
 
@@ -81,9 +84,9 @@ namespace MoreMountains.Tools
 			{
 				_canvasGroup.alpha=_initialOpacity;
 			}
-			if (ButtonReleased != null)
+			if (AxisReleased != null)
 			{
-				ButtonReleased.Invoke();
+				AxisReleased.Invoke();
 	        }
 	    }
 
@@ -92,9 +95,9 @@ namespace MoreMountains.Tools
 		/// </summary>
 		public virtual void OnPointerPressed()
 	    {
-			if (ButtonPressed != null)
+			if (AxisPressed != null)
 			{
-				ButtonPressed.Invoke();
+				AxisPressed.Invoke(1);
 	        }
 	    }
 	}

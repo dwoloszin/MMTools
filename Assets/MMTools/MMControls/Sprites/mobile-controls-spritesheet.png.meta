@@ -1,16 +1,17 @@
 fileFormatVersion: 2
 guid: 358b5d9f23bc9413e87c9948acc67ee1
-timeCreated: 1462611494
+timeCreated: 1462613019
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: mobile-controls-spritesheet_0
-    21300002: mobile-controls-spritesheet_1
-    21300004: mobile-controls-spritesheet_2
-    21300006: mobile-controls-spritesheet_3
-    21300008: mobile-controls-spritesheet_4
-    21300010: mobile-controls-spritesheet_5
-    21300012: mobile-controls-spritesheet_6
+    21300000: joystick-knob
+    21300002: button-A
+    21300004: button-RT
+    21300006: button-Y
+    21300008: button-X
+    21300010: joystick-back
+    21300012: button-B
+    21300014: arrow
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -57,7 +58,7 @@ TextureImporter:
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: mobile-controls-spritesheet_0
+    - name: joystick-knob
       rect:
         serializedVersion: 2
         x: 0
@@ -88,7 +89,7 @@ TextureImporter:
         - {x: 62, y: -117}
         - {x: 83, y: -103}
         - {x: 109, y: -75}
-    - name: mobile-controls-spritesheet_1
+    - name: button-A
       rect:
         serializedVersion: 2
         x: 768
@@ -119,7 +120,7 @@ TextureImporter:
         - {x: 62, y: -117}
         - {x: 83, y: -103}
         - {x: 109, y: -75}
-    - name: mobile-controls-spritesheet_2
+    - name: button-RT
       rect:
         serializedVersion: 2
         x: 256
@@ -150,7 +151,7 @@ TextureImporter:
         - {x: 62, y: -117}
         - {x: 83, y: -103}
         - {x: 109, y: -75}
-    - name: mobile-controls-spritesheet_3
+    - name: button-Y
       rect:
         serializedVersion: 2
         x: 512
@@ -181,7 +182,7 @@ TextureImporter:
         - {x: 62, y: -117}
         - {x: 83, y: -103}
         - {x: 109, y: -75}
-    - name: mobile-controls-spritesheet_4
+    - name: button-X
       rect:
         serializedVersion: 2
         x: 512
@@ -212,7 +213,7 @@ TextureImporter:
         - {x: 62, y: -117}
         - {x: 83, y: -103}
         - {x: 109, y: -75}
-    - name: mobile-controls-spritesheet_5
+    - name: joystick-back
       rect:
         serializedVersion: 2
         x: 0
@@ -300,7 +301,7 @@ TextureImporter:
         - {x: 40, y: -256}
         - {x: 57, y: -253}
         - {x: 76, y: -249}
-    - name: mobile-controls-spritesheet_6
+    - name: button-B
       rect:
         serializedVersion: 2
         x: 768
@@ -331,6 +332,26 @@ TextureImporter:
         - {x: 62, y: -117}
         - {x: 83, y: -103}
         - {x: 109, y: -75}
+    - name: arrow
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 512
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 128, y: 128}
+        - {x: -128, y: 128}
+        - {x: -128, y: 124}
+        - {x: -118, y: 105}
+        - {x: -118, y: 103}
+        - {x: -2, y: -128}
+        - {x: 4, y: -128}
+        - {x: 119, y: 103}
+        - {x: 128, y: 122}
     outline: []
   spritePackingTag: 
   userData: 
