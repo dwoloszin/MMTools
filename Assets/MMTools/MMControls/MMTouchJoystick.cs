@@ -137,7 +137,9 @@ namespace MoreMountains.Tools
 		public void OnEndDrag(PointerEventData eventData)
 		{
 			// we reset the stick's position
-			transform.position = _neutralPosition;
+			_newJoystickPosition = _neutralPosition;
+			_newJoystickPosition.z = _initialZPosition;
+			transform.position = _newJoystickPosition;
 			_joystickValue.x = 0f;
 			_joystickValue.y = 0f;
 		}
