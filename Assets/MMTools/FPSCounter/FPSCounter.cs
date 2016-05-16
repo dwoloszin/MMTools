@@ -44,7 +44,7 @@ public class FPSCounter : MonoBehaviour
 	 
 	    if( _timeLeft <= 0.0 )
 	    {
-			_text.text = (_framesAccumulated/_framesDrawnInTheInterval).ToString("f2");
+			_text.text = "FPS: "+(_framesAccumulated/_framesDrawnInTheInterval).ToString("f2");
 	        _framesDrawnInTheInterval = 0;
 			_framesAccumulated = 0f;
 	        _timeLeft = UpdateInterval;
