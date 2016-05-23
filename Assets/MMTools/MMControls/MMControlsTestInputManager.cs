@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using MoreMountains.Tools;
 
-namespace MoreMountains.CorgiEngine
+namespace MoreMountains.Tools
 {	
 	/// <summary>
 	/// This persistent singleton handles the inputs and sends commands to the player
