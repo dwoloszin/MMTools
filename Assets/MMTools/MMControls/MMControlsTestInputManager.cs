@@ -15,7 +15,8 @@ namespace MoreMountains.Tools
 			Application.targetFrameRate = 300;
 		}
 
-		public virtual void Movement(Vector2 movement) { MMDebug.DebugOnScreen("horizontal movement",movement); }
+		public virtual void LeftJoystickMovement(Vector2 movement) { MMDebug.DebugOnScreen("left joystick",movement); }
+		public virtual void RightJoystickMovement(Vector2 movement) { MMDebug.DebugOnScreen("right joystick",movement); }
 
 		public virtual void APressed() { MMDebug.DebugOnScreen("Button A Pressed"); }
 		public virtual void BPressed() { MMDebug.DebugOnScreen("Button B Pressed"); }

@@ -30,6 +30,8 @@ namespace MoreMountains.Tools
 		[Information("Here you can set the opacity of the button when it's pressed. Useful for visual feedback.",InformationAttribute.InformationType.Info,false)]
 		/// the new opacity to apply to the canvas group when the axis is pressed
 		public float PressedOpacity = 0.5f;
+		/// the value to send the bound method when the axis is pressed
+		public float AxisValue;
 
 	    protected bool _zonePressed = false;
 	    protected CanvasGroup _canvasGroup;
@@ -48,13 +50,16 @@ namespace MoreMountains.Tools
 	    }
 
 		/// <summary>
-		/// Every frame, if the touch zone is pressed, we trigger the OnPointerPressed method, to detect continuous press
+		/// Every frame, if the touch zone is pressed, we trigger the bound method if it exists
 		/// </summary>
 		protected virtual void Update()
 	    {
-	        if (_zonePressed)
-	        {
-	            OnPointerPressed();
+			if (AxisPressed != null)
+			{
+				if (_zonePressed)
+		        {
+					AxisPressed.Invoke(AxisValue);
+		        }
 	        }
 	    }
 
@@ -87,18 +92,8 @@ namespace MoreMountains.Tools
 			if (AxisReleased != null)
 			{
 				AxisReleased.Invoke();
-	        }
-	    }
-
-		/// <summary>
-		/// Triggers the bound pointer pressed action
-		/// </summary>
-		public virtual void OnPointerPressed()
-	    {
-			if (AxisPressed != null)
-			{
-				AxisPressed.Invoke(1);
-	        }
+			}
+			AxisPressed.Invoke(0);
 	    }
 	}
 }
