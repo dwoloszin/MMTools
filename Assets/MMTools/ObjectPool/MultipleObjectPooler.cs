@@ -1,25 +1,41 @@
 ﻿using UnityEngine;
 using System.Collections;
+using MoreMountains.Tools;
+using System;
 using System.Collections.Generic;
 
 namespace MoreMountains.Tools
 {	
+	[Serializable]
+	public class MultipleObjectPoolerObject
+	{
+		public GameObject GameObjectToPool;
+		public int PoolSize;
+		public bool PoolCanExpand = true;
+	}
+
+	public enum PoolingMethods { OriginalOrder, OriginalOrderSequential, RandomBetweenObjects, RandomPoolSizeBased }
+
 	/// <summary>
 	/// This class allows you to have a pool of various objects to pool from.
 	/// </summary>
 	public class MultipleObjectPooler : ObjectPooler
 	{
-	    /// the list of game objects we'll instantiate 
-		public GameObject[] GameObjectsToPool;	
-		/// For each type of object, the number we need to pool
-		public int[] PoolSize;
-	    /// if true, the pool will automatically add objects to the itself if needed
-		public bool PoolCanExpand = true;
+		public List<MultipleObjectPoolerObject> Pool;
+		[Information("A MultipleObjectPooler is a reserve of objects, to be used by a Spawner. When asked, it will return an object from the pool (ideally an inactive one) chosen based on the pooling method you've chosen.\n- OriginalOrder will spawn objects in the order you've set them in the inspector (from top to bottom)\n- OriginalOrderSequential will do the same, but will empty each pool before moving to the next object\n- RandomBetweenObjects will pick one object from the pool, at random, but ignoring its pool size, each object has equal chances to get picked\n- PoolSizeBased randomly choses one object from the pool, based on its pool size probability (the larger the pool size, the higher the chances it'll get picked)'...",MoreMountains.Tools.InformationAttribute.InformationType.Info,false)]
+		public PoolingMethods PoolingMethod = PoolingMethods.RandomPoolSizeBased;
+		[Information("If you set CanPoolSameObjectTwice to false, the Pooler will try to prevent the same object from being pooled twice to avoid repetition. This will only affect random pooling methods, not ordered pooling.",MoreMountains.Tools.InformationAttribute.InformationType.Info,false)]
+		public bool CanPoolSameObjectTwice=true;
 
 	    /// this object is just used to group the pooled objects
 	    protected GameObject _waitingPool;
 	    /// the actual object pool
 		protected List<GameObject> _pooledGameObjects;
+		protected List<GameObject> _pooledGameObjectsOriginalOrder;
+		protected List<MultipleObjectPoolerObject> _randomizedPool;
+		protected string _lastPooledObjectName;
+
+		protected int _currentIndex=0;
 	    
 	    /// <summary>
 	    /// Fills the object pool with the amount of objects you specified in the inspector.
@@ -30,21 +46,92 @@ namespace MoreMountains.Tools
 	        _waitingPool = new GameObject("[MultipleObjectPooler] " + this.name);
 	        // we initialize the pool
 			_pooledGameObjects = new List<GameObject>();
+			// we create a randomized pool for picking purposes
+			_randomizedPool = new List<MultipleObjectPoolerObject>() ;
+			for (int i = 0; i < Pool.Count; i++)
+			{
+				_randomizedPool.Add(Pool[i]);
+			}
+			_randomizedPool.Shuffle();
 
-	        int i = 0;
-	        // for each type of object specified in the inspector
-			foreach (GameObject pooledGameObject in GameObjectsToPool)
-	        {
-	            // if there's no specified number of objects to pool for that type of object, we do nothing and exit
-				if (i > PoolSize.Length) { return; }
+			// if there's only one item in the Pool, we force CanPoolSameObjectTwice to true
+			if (Pool.Count <= 1)
+			{
+				CanPoolSameObjectTwice=true;
+			}
 
-				// we add, one by one, the number of objects of that type, as specified in the inspector
-	            for (int j = 0; j < PoolSize[i]; j++)
-	            {
-					AddOneObjectToThePool(pooledGameObject);
+			bool stillObjectsToPool;
+			int[] poolSizes;
+
+			// if we're gonna pool in the original inspector order
+			switch (PoolingMethod)
+			{
+				case PoolingMethods.OriginalOrder:
+			
+					stillObjectsToPool = true;
+					_pooledGameObjectsOriginalOrder = new List<GameObject>();
+
+					// we store our poolsizes in a temp array so it doesn't impact the inspector
+					poolSizes = new int[Pool.Count];
+					for (int i = 0; i < Pool.Count; i++)
+					{
+						poolSizes[i] = Pool[i].PoolSize;
+					}
+
+					// we go through our objects in the order they were in the inspector, and fill the pool while we find objects to add
+					while (stillObjectsToPool)
+					{
+						stillObjectsToPool = false;
+						for (int i = 0; i < Pool.Count; i++)
+						{
+							if (poolSizes[i] > 0)
+				     	   	{
+								AddOneObjectToThePool(Pool[i].GameObjectToPool);
+								poolSizes[i]--;
+								stillObjectsToPool = true;
+				        	}			            
+				        }
+					}
+					break;
+				case PoolingMethods.OriginalOrderSequential:
+
+					_pooledGameObjectsOriginalOrder = new List<GameObject>();
+
+					// we store our poolsizes in a temp array so it doesn't impact the inspector
+					foreach (MultipleObjectPoolerObject pooledGameObject in Pool)
+			        {
+			        	for (int i = 0; i < pooledGameObject.PoolSize ; i++ )
+			        	{
+							AddOneObjectToThePool(pooledGameObject.GameObjectToPool);								
+			        	}
+			        }				
+					break;
+				default:
+					int i = 0;
+			        // for each type of object specified in the inspector
+					foreach (MultipleObjectPoolerObject pooledGameObject in Pool)
+			        {
+			            // if there's no specified number of objects to pool for that type of object, we do nothing and exit
+						if (i > Pool.Count) { return; }
+
+						// we add, one by one, the number of objects of that type, as specified in the inspector
+			            for (int j = 0; j < Pool[i].PoolSize; j++)
+			            {
+							AddOneObjectToThePool(pooledGameObject.GameObjectToPool);
+						}
+						i++;
+			        }
+			        break;
+			}
+			if ((PoolingMethod==PoolingMethods.OriginalOrder) || (PoolingMethod == PoolingMethods.OriginalOrderSequential))
+			{
+				foreach (GameObject pooledObject in _pooledGameObjects)
+				{
+					_pooledGameObjectsOriginalOrder.Add(pooledObject);					
 				}
-				i++;
-	        }
+			}
+
+	        
 	    }
 	    
 	    /// <summary>
@@ -57,44 +144,137 @@ namespace MoreMountains.Tools
 			GameObject newGameObject = (GameObject)Instantiate(typeOfObject);
 			newGameObject.gameObject.SetActive(false);
 			newGameObject.transform.parent = _waitingPool.transform;
-			newGameObject.name=typeOfObject.name+"-"+_pooledGameObjects.Count;
+			newGameObject.name=typeOfObject.name;
 			_pooledGameObjects.Add(newGameObject);	
 			return newGameObject;
 		}
-		
+
 		/// <summary>
 		/// Gets a random object from the pool.
 		/// </summary>
 		/// <returns>The pooled game object.</returns>
 		public override GameObject GetPooledGameObject()
 		{
-			// we get a random index 
-			int randomIndex = Random.Range(0, _pooledGameObjects.Count);
-			// this counter is used to avoid an infinite loop while searching
-			int preventOverflowCounter=0;
-					
-			// as long as we don't find an inactive object we can pool, we keep randomizing new indexes. 		
-			// we only do that as many times as there are items in the pool, to avoid infinite loops.
-			while ( (_pooledGameObjects[randomIndex].gameObject.activeInHierarchy) && (preventOverflowCounter<_pooledGameObjects.Count) )
+			GameObject pooledGameObject;
+			switch (PoolingMethod)
 			{
-				randomIndex = Random.Range(0, _pooledGameObjects.Count);
-				preventOverflowCounter++;
+				case PoolingMethods.OriginalOrder:
+					pooledGameObject = GetPooledGameObjectOriginalOrder();
+					break;
+				case PoolingMethods.RandomPoolSizeBased:
+					pooledGameObject =  GetPooledGameObjectPoolSizeBased();
+					break;
+				case PoolingMethods.RandomBetweenObjects:
+					pooledGameObject =  GetPooledGameObjectRandomBetweenObjects();
+					break;
+				case PoolingMethods.OriginalOrderSequential:
+					pooledGameObject =  GetPooledGameObjectOriginalOrder();
+					break;
+				default:
+					pooledGameObject = null;
+					break;
 			}
-			
-			// once we're done looping randomly through the pool, if the item we've picked is inactive, that means the pool is empty.
-			if (_pooledGameObjects[randomIndex].gameObject.activeInHierarchy)
+			if (pooledGameObject!=null)
+			{
+				_lastPooledObjectName = pooledGameObject.name;
+			}
+			else
 			{	
-				// if the pool is allowed to grow (this is set in the inspector if you're wondering)
-				if (PoolCanExpand)
+				_lastPooledObjectName="";
+			}
+			return pooledGameObject;
+		}
+
+		/// <summary>
+		/// Tries to find a gameobject in the pool according to the order the list has been setup in (one of each, no matter how big their respective pool sizes)
+		/// </summary>
+		/// <returns>The pooled game object original order.</returns>
+		protected virtual GameObject GetPooledGameObjectOriginalOrder()
+		{
+			int newIndex;
+			// if we've reached the end of our list, we start again from the beginning
+			if (_currentIndex>=_pooledGameObjectsOriginalOrder.Count)
+			{
+				_currentIndex=0;
+			}
+
+			// if the object is already active, we need to find another one
+			if (_pooledGameObjects[_currentIndex].gameObject.activeInHierarchy)
+			{
+				GameObject findObject = FindInactiveObject(_pooledGameObjects[_currentIndex].gameObject.name,_pooledGameObjects);
+				if (findObject != null)
 				{
-					// we get a random type of object from the ones already in the pool and add it to the pool
-					randomIndex = Random.Range(0, GameObjectsToPool.Length);
-					return AddOneObjectToThePool(GameObjectsToPool[randomIndex]);						 	
+					_currentIndex++;
+					return findObject;
+				}
+
+				// we try to get a new object of the searched type
+				MultipleObjectPoolerObject searchedObject = GetPoolObject(_pooledGameObjects[_currentIndex].gameObject);
+				// if its pool can expand, we create a new one
+				if (searchedObject.PoolCanExpand)
+				{
+					_currentIndex++;
+					return AddOneObjectToThePool(searchedObject.GameObjectToPool);	
 				}
 				else
 				{
-					// if it's not allowed to grow, we return nothing.
-					return null;
+					// if it can't expand we return nothing
+					return null;					
+				}
+			}
+			else
+			{
+				// if the object is inactive, we return it
+				newIndex = _currentIndex;
+				_currentIndex++;
+				return _pooledGameObjects[newIndex]; 
+			}
+		}
+
+		/// <summary>
+		/// Randomly choses one object from the pool, based on its pool size probability (the larger the pool size, the higher the chances it'll get picked)
+		/// </summary>
+		/// <returns>The pooled game object pool size based.</returns>
+		protected virtual GameObject GetPooledGameObjectPoolSizeBased()
+		{
+			// we get a random index 
+			int randomIndex = UnityEngine.Random.Range(0, _pooledGameObjects.Count);
+
+			// if we can't pool the same object twice, we'll loop for a while to try and get another one
+			int overflowCounter=0;
+			while (!CanPoolSameObjectTwice && _pooledGameObjects[randomIndex].name == _lastPooledObjectName && overflowCounter < _pooledGameObjects.Count )
+			{
+				randomIndex = UnityEngine.Random.Range(0, _pooledGameObjects.Count);
+				overflowCounter++;
+			}
+
+			//  if the item we've picked is inactive
+			if (_pooledGameObjects[randomIndex].gameObject.activeInHierarchy)
+			{	
+				// we try to find another inactive object of the same type
+				GameObject pulledObject = FindInactiveObject(_pooledGameObjects[randomIndex].gameObject.name,_pooledGameObjects);
+				if (pulledObject!=null)
+				{
+					return pulledObject;
+				}
+				else
+				{
+					// if we couldn't find an inactive object of this type, we see if it can expand
+					MultipleObjectPoolerObject searchedObject = GetPoolObject(_pooledGameObjects[randomIndex].gameObject);
+					if (searchedObject==null)
+					{
+						return null; 
+					}
+					// if the pool for this object is allowed to grow (this is set in the inspector if you're wondering)
+					if (searchedObject.PoolCanExpand)
+					{						
+						return AddOneObjectToThePool(searchedObject.GameObjectToPool);						 	
+					}
+					else
+					{
+						// if it's not allowed to grow, we return nothing.
+						return null;
+					}
 				}
 			}
 			else
@@ -102,51 +282,172 @@ namespace MoreMountains.Tools
 				// if the pool wasn't empty, we return the random object we've found.
 				return _pooledGameObjects[randomIndex];   
 			}
-			
-			 
+		}
+
+		/// <summary>
+		/// Gets one object from the pool, at random, but ignoring its pool size, each object has equal chances to get picked
+		/// </summary>
+		/// <returns>The pooled game object random between objects.</returns>
+		protected virtual GameObject GetPooledGameObjectRandomBetweenObjects()
+		{
+			// we pick one of the objects in the original pool at random
+			int randomIndex = UnityEngine.Random.Range(0, Pool.Count);
+
+			// if we can't pool the same object twice, we'll loop for a while to try and get another one
+			int overflowCounter=0;
+			while (!CanPoolSameObjectTwice && Pool[randomIndex].GameObjectToPool.name == _lastPooledObjectName && overflowCounter < _pooledGameObjects.Count )
+			{
+				randomIndex = UnityEngine.Random.Range(0, Pool.Count);
+				overflowCounter++;
+			}
+			int originalRandomIndex = randomIndex+1;
+			bool objectFound=false;
+
+			// while we haven't found an object to return, and while we haven't gone through all the different object types, we keep going
+			while (!objectFound && randomIndex!=originalRandomIndex)
+			{
+				// if our index is at the end, we reset it
+				if (randomIndex >= Pool.Count)
+				{
+					randomIndex=0;
+				}
+
+				// we try to find an inactive object of that type in the pool
+				GameObject newGameObject = FindInactiveObject(Pool[randomIndex].GameObjectToPool.name, _pooledGameObjects);
+				if (newGameObject!=null)
+				{
+					objectFound=true;
+					return newGameObject;
+				}
+				else
+				{
+					// if there's none and if we can expand, we expand
+					if (Pool[randomIndex].PoolCanExpand)
+					{
+						return AddOneObjectToThePool(Pool[randomIndex].GameObjectToPool);	
+					}
+				}
+				randomIndex++;
+			}
+			return null;
 		}
 		
 		/// <summary>
-		/// Gets an object of the specified type from the pool
+		/// Gets an object of the specified name from the pool
 		/// </summary>
 		/// <returns>The pooled game object of type.</returns>
 		/// <param name="type">Type.</param>
-		public virtual GameObject GetPooledGameObjectOfType(string type)
+		public virtual GameObject GetPooledGameObjectOfType(string searchedName)
 	    {
-			GameObject correspondingGameObject=null;
+			GameObject newObject = FindInactiveObject(searchedName,_pooledGameObjects);
 
-			// we go through the object pool looking for an inactive object of the specified type.
-			for (int i = 0; i < _pooledGameObjects.Count; i++)
-	        {
-	        	// if we find an object inside the pool that matches the asked type
-				if (_pooledGameObjects[i].name == type)
-	            {
-	            	// and if that object is inactive right now
-					if (!_pooledGameObjects[i].gameObject.activeInHierarchy)
-	                {
-	                	// we return it
-						return _pooledGameObjects[i];
-					}
-					else
-					{
-						// if the object is active, we store its type
-						correspondingGameObject = _pooledGameObjects[i];
-					}
-	            }            
-	        }
+			if (newObject!=null)
+			{
+				return newObject;
+			}
+			else
+			{
+				// if we've not returned the object, that means the pool is empty (at least it means it doesn't contain any object of that specific type)
+				// so if the pool is allowed to expand
+				GameObject searchedObject = FindObject(searchedName,_pooledGameObjects);
+				if (searchedObject == null) 
+				{
+					return null;
+				}
 
-			// if we've not returned the object, that means the pool is empty (at least it means it doesn't contain any object of that specific type)
-			// so if the pool is allowed to expand
-	        if (PoolCanExpand && correspondingGameObject!=null)
-	        {
-	        	// we create a new game object of that type, we add it to the pool for further use, and return it.
-				GameObject newGameObject = (GameObject)Instantiate(correspondingGameObject);
-	            _pooledGameObjects.Add(newGameObject);
-	            return newGameObject;
+				if (GetPoolObject(FindObject(searchedName,_pooledGameObjects)).PoolCanExpand)
+	        	{
+	        		// we create a new game object of that type, we add it to the pool for further use, and return it.
+					GameObject newGameObject = (GameObject)Instantiate(searchedObject);
+	            	_pooledGameObjects.Add(newGameObject);
+	            	return newGameObject;
+	        	}
 	        }
 
 			// if the pool was empty for that object and not allowed to expand, we return nothing.
 	        return null;
-	    }
+		}
+
+		/// <summary>
+		/// Finds an inactive object in the pool based on its name.
+		/// Returns null if no inactive object by that name were found in the pool
+		/// </summary>
+		/// <returns>The inactive object.</returns>
+		/// <param name="searchedName">Searched name.</param>
+		protected GameObject FindInactiveObject(string searchedName, List<GameObject> list)
+		{
+			for (int i = 0; i < list.Count; i++)
+	        {
+	        	// if we find an object inside the pool that matches the asked type
+				if (list[i].name.Equals(searchedName))
+	            {
+	            	// and if that object is inactive right now
+					if (!list[i].gameObject.activeInHierarchy)
+	                {
+	                	// we return it
+						return list[i];
+					}
+	            }            
+	        }
+	        return null;
+		}
+
+		protected GameObject FindAnyInactiveObject(List<GameObject> list)
+		{
+			for (int i = 0; i < list.Count; i++)
+	        {
+	        	// and if that object is inactive right now
+				if (!list[i].gameObject.activeInHierarchy)
+	            {
+	              	// we return it
+					return list[i];
+				}                        
+	        }
+	        return null;
+		}
+
+		/// <summary>
+		/// Finds an object in the pool based on its name, active or inactive
+		/// Returns null if there's no object by that name in the pool
+		/// </summary>
+		/// <returns>The object.</returns>
+		/// <param name="searchedName">Searched name.</param>
+		protected GameObject FindObject(string searchedName,List<GameObject> list)
+		{
+			for (int i = 0; i < list.Count; i++)
+	        {
+	        	// if we find an object inside the pool that matches the asked type
+				if (list[i].name.Equals(searchedName))
+	            {
+	            	// and if that object is inactive right now
+					return list[i];
+	            }            
+	        }
+	        return null;
+		}
+
+		/// <summary>
+		/// Returns (if it exists) the MultipleObjectPoolerObject from the original Pool based on a GameObject.
+		/// Note that this is name based.
+		/// </summary>
+		/// <returns>The pool object.</returns>
+		/// <param name="testedObject">Tested object.</param>
+		protected MultipleObjectPoolerObject GetPoolObject(GameObject testedObject)
+		{
+			if (testedObject==null)
+			{
+				return null;
+			}
+			int i=0;
+			foreach(MultipleObjectPoolerObject poolerObject in Pool)
+			{
+				if (testedObject.name.Equals(poolerObject.GameObjectToPool.name))
+				{
+					return (poolerObject);
+				}
+				i++;
+			}
+			return null;
+		}
 	}
 }
