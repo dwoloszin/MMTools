@@ -25,6 +25,11 @@ namespace MoreMountains.Tools
 	    	}
 
 	        Color initialColor = renderer.material.color;
+			if (initialColor == flickerColor)
+	        {
+				yield return null;
+	        }
+
 	        float flickerStop = Time.time + flickerDuration;
 
 	        while (Time.time<flickerStop)
