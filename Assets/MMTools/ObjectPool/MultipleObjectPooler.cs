@@ -107,19 +107,19 @@ namespace MoreMountains.Tools
 			        }				
 					break;
 				default:
-					int i = 0;
+					int k = 0;
 			        // for each type of object specified in the inspector
 					foreach (MultipleObjectPoolerObject pooledGameObject in Pool)
 			        {
 			            // if there's no specified number of objects to pool for that type of object, we do nothing and exit
-						if (i > Pool.Count) { return; }
+						if (k > Pool.Count) { return; }
 
 						// we add, one by one, the number of objects of that type, as specified in the inspector
-			            for (int j = 0; j < Pool[i].PoolSize; j++)
+			            for (int j = 0; j < Pool[k].PoolSize; j++)
 			            {
 							AddOneObjectToThePool(pooledGameObject.GameObjectToPool);
 						}
-						i++;
+						k++;
 			        }
 			        break;
 			}
