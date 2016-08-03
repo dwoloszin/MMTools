@@ -47,7 +47,7 @@ namespace MoreMountains.Tools
 		/// <summary>
 		/// Every frame, if the touch zone is pressed, we trigger the OnPointerPressed method, to detect continuous press
 		/// </summary>
-		protected virtual void Update()
+		protected virtual void LateUpdate()
 	    {
 	        if (_zonePressed)
 	        {
@@ -94,6 +94,7 @@ namespace MoreMountains.Tools
 	    {
 			if (ButtonPressed != null)
 			{
+				MMDebug.DebugLogTime("button pressed");
 				ButtonPressed.Invoke();
 	        }
 	    }

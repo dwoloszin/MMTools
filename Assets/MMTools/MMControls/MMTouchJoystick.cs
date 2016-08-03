@@ -42,6 +42,9 @@ namespace MoreMountains.Tools
 		/// The method(s) to call when the button gets pressed down
 		public JoystickEvent JoystickValue;
 
+
+		public RenderMode ParentCanvasRenderMode { get; protected set; }
+
 		/// Store neutral position of the stick
 		protected Vector2 _neutralPosition;
 		/// Current horizontal and vertical values of the joystick (from -1 to 1)
@@ -52,7 +55,9 @@ namespace MoreMountains.Tools
 		protected Vector2 _newTargetPosition;
 		protected Vector3 _newJoystickPosition;
 		protected float _initialZPosition;
-		protected RenderMode _parentCanvasRenderMode;
+
+	    protected CanvasGroup _canvasGroup;
+		protected float _initialOpacity;
 
 
 		/// <summary>
@@ -60,20 +65,28 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void Start()
 		{
+			Initialize();
+		}
+
+		public virtual void Initialize()
+		{
 			_canvasRectTransform = GetComponentInParent<Canvas>().transform as RectTransform;
+			_canvasGroup = GetComponent<CanvasGroup>();
+
 			SetNeutralPosition();
 			if (TargetCamera == null)
 			{
 				throw new Exception("MMTouchJoystick : you have to set a target camera");
 			}
-			_parentCanvasRenderMode = GetComponentInParent<Canvas>().renderMode;
+			ParentCanvasRenderMode = GetComponentInParent<Canvas>().renderMode;
 			_initialZPosition = transform.position.z;
+			_initialOpacity = _canvasGroup.alpha;
 		}
 
 		/// <summary>
 		/// On Update we check for an orientation change if needed, and send our input values.
 		/// </summary>
-		void Update()
+		protected virtual void Update()
 		{
 			if (JoystickValue != null)
 			{
@@ -87,18 +100,25 @@ namespace MoreMountains.Tools
 		/// <summary>
 		/// Sets the neutral position of the joystick
 		/// </summary>
-		protected virtual void SetNeutralPosition()
+		public virtual void SetNeutralPosition()
 		{
 			_neutralPosition = GetComponent<RectTransform>().transform.position;
+		}
+
+		public virtual void SetNeutralPosition(Vector3 newPosition)
+		{
+			_neutralPosition = newPosition;
 		}
 
 		/// <summary>
 		/// Handles dragging of the joystick
 		/// </summary>
-		public void OnDrag(PointerEventData eventData)
+		public virtual void OnDrag(PointerEventData eventData)
 		{
+			_canvasGroup.alpha=PressedOpacity;
+
 			// if we're in "screen space - camera" render mode
-			if (_parentCanvasRenderMode == RenderMode.ScreenSpaceCamera)
+			if (ParentCanvasRenderMode == RenderMode.ScreenSpaceCamera)
 			{
 					_newTargetPosition = TargetCamera.ScreenToWorldPoint(eventData.position);
 			}
@@ -134,7 +154,7 @@ namespace MoreMountains.Tools
 		/// <summary>
 		/// What happens when the stick is released
 		/// </summary>
-		public void OnEndDrag(PointerEventData eventData)
+		public virtual void OnEndDrag(PointerEventData eventData)
 		{
 			// we reset the stick's position
 			_newJoystickPosition = _neutralPosition;
@@ -142,6 +162,9 @@ namespace MoreMountains.Tools
 			transform.position = _newJoystickPosition;
 			_joystickValue.x = 0f;
 			_joystickValue.y = 0f;
+
+			// we set its opacity back
+			_canvasGroup.alpha=_initialOpacity;
 		}
 
 		/// <summary>
