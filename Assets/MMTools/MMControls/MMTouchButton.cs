@@ -35,19 +35,20 @@ namespace MoreMountains.Tools
 	    /// <summary>
 	    /// On Start, we get our canvasgroup and set our initial alpha
 	    /// </summary>
-	    protected virtual void Start()
+	    protected virtual void Awake()
 	    {
 			_canvasGroup = GetComponent<CanvasGroup>();
 			if (_canvasGroup!=null)
 			{
 				_initialOpacity = _canvasGroup.alpha;
 			}
+			ResetButton();
 	    }
 
 		/// <summary>
 		/// Every frame, if the touch zone is pressed, we trigger the OnPointerPressed method, to detect continuous press
 		/// </summary>
-		protected virtual void LateUpdate()
+		protected virtual void Update()
 	    {
 	        if (_zonePressed)
 	        {
@@ -94,9 +95,25 @@ namespace MoreMountains.Tools
 	    {
 			if (ButtonPressed != null)
 			{
-				MMDebug.DebugLogTime("button pressed");
 				ButtonPressed.Invoke();
 	        }
+	    }
+
+	    /// <summary>
+	    /// OnEnable, we reset our button state
+	    /// </summary>
+		protected virtual void OnEnable()
+	    {
+			ResetButton();
+	    }
+
+	    /// <summary>
+	    /// Resets the button's state and opacity
+	    /// </summary>
+	    protected virtual void ResetButton()
+	    {
+			_zonePressed=false;
+			_canvasGroup.alpha = _initialOpacity;
 	    }
 	}
 }

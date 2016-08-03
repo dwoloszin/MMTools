@@ -63,7 +63,7 @@ namespace MoreMountains.Tools
 		/// <summary>
 		/// On Start, we get our working canvas, and we set our neutral position
 		/// </summary>
-		protected virtual void Start()
+		protected virtual void Awake()
 		{
 			Initialize();
 		}
@@ -175,6 +175,12 @@ namespace MoreMountains.Tools
 		protected virtual float EvaluateInputValue(float vectorPosition)
 		{
 			return Mathf.InverseLerp(0, MaxRange, Mathf.Abs(vectorPosition)) * Mathf.Sign(vectorPosition);
+		}
+
+		protected virtual void OnEnable()
+		{
+			Initialize();
+			_canvasGroup.alpha = _initialOpacity;
 		}
 	}
 }
