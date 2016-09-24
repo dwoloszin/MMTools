@@ -17,13 +17,28 @@ namespace MoreMountains.Tools
 		/// <param name="type">Type.</param>
 		public static bool HasParameterOfType (this Animator self, string name, AnimatorControllerParameterType type) 
 		{
-			var parameters = self.parameters;
-			foreach (var currParam in parameters) {
-				if (currParam.type == type && currParam.name == name) {
+			if (name == null || name == "") { return false; }
+			AnimatorControllerParameter[] parameters = self.parameters;
+			foreach (AnimatorControllerParameter currParam in parameters) 
+			{
+				if (currParam.type == type && currParam.name == name) 
+				{
 					return true;
 				}
 			}
 			return false;
 		}	
+
+
+        public static bool Contains(this LayerMask mask, int layer) 
+        {
+             return ((mask.value & (1 << layer)) > 0);
+        }
+         
+		public static bool Contains(this LayerMask mask, GameObject gameobject) 
+        {
+             return ((mask.value & (1 << gameobject.layer)) > 0);
+        }
+     
 	}
 }

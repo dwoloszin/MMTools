@@ -10,7 +10,7 @@ public class ProgressBar : MonoBehaviour
 {
 	/// the healthbar's foreground bar
 	public Transform ForegroundBar;
-
+	public string PlayerID;
 
 	protected Vector3 _newLocalScale = Vector3.one;
 	protected float _newPercent;

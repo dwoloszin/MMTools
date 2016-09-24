@@ -68,7 +68,7 @@ namespace MoreMountains.Tools
 			var rotatedX = Mathf.Cos(angle) * (point.x - pivot.x) - Mathf.Sin(angle) * (point.y-pivot.y) + pivot.x;
 			var rotatedY = Mathf.Sin(angle) * (point.x - pivot.x) + Mathf.Cos(angle) * (point.y - pivot.y) + pivot.y;
 			return new Vector3(rotatedX,rotatedY,0);		
-		}
+				}
 
 		/// <summary>
 		/// Rotates a point around the given pivot.
@@ -86,7 +86,44 @@ namespace MoreMountains.Tools
 		   	// we determine the rotated point's position
 		   	point = direction + pivot; 
 		   	return point; 
+		}
+
+		/// <summary>
+		/// Rotates a point around the given pivot.
+		/// </summary>
+		/// <returns>The new point position.</returns>
+		/// <param name="point">The point to rotate.</param>
+		/// <param name="pivot">The pivot's position.</param>
+		/// <param name="angles">The angle as a Vector3.</param>
+		public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Quaternion quaternion) 
+		{
+			// we get point direction from the point to the pivot
+		   	Vector3 direction = point - pivot; 
+		   	// we rotate the direction
+		   	direction = quaternion * direction; 
+		   	// we determine the rotated point's position
+		   	point = direction + pivot; 
+		   	return point; 
 		 }
+
+		/// <summary>
+		/// Computes and returns the angle between two vectors, on a 360° scale
+		/// </summary>
+		/// <returns>The <see cref="System.Single"/>.</returns>
+		/// <param name="vectorA">Vector a.</param>
+		/// <param name="vectorB">Vector b.</param>
+		public static float AngleBetween(Vector2 vectorA, Vector2 vectorB)
+		{
+			float angle = Vector2.Angle(vectorA, vectorB);
+			Vector3 cross = Vector3.Cross(vectorA, vectorB);
+
+			if (cross.z > 0)
+			{
+				angle = 360 - angle;
+			}
+
+			return angle;
+		}
 
 		/// <summary>
 		/// Returns the sum of all the int passed in parameters
@@ -162,6 +199,26 @@ namespace MoreMountains.Tools
 		{
 			float remappedValue = C + (x-A)/(B-A) * (D - C);
 			return remappedValue;
+		}
+
+		public static float RoundToClosest(float value, float[] possibleValues)
+		{
+			if (possibleValues.Length == 0) 
+			{
+				return 0f;
+			}
+
+			float closestValue = possibleValues[0];
+
+			foreach (float possibleValue in possibleValues)
+			{
+				if (Mathf.Abs(closestValue - value) > Mathf.Abs(possibleValue - value))
+				{
+					closestValue = possibleValue;
+				}	
+			}
+			return closestValue;
+
 		}
 	}
 }

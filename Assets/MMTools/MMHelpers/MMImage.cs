@@ -12,22 +12,21 @@ namespace MoreMountains.Tools
 		/// <summary>
 	    /// Coroutine used to make the character's sprite flicker (when hurt for example).
 	    /// </summary>
-	    public static IEnumerator Flicker(Renderer renderer, Color flickerColor, float flickerSpeed, float flickerDuration)
+	    public static IEnumerator Flicker(Renderer renderer, Color initialColor, Color flickerColor, float flickerSpeed, float flickerDuration)
 	    {
 	    	if (renderer==null)
 	    	{
-	    		yield return null;
+	    		yield break;
 	    	}
 
 	    	if (!renderer.material.HasProperty("_Color"))
 	    	{
-	    		yield return null;
+	    		yield break;
 	    	}
 
-	        Color initialColor = renderer.material.color;
 			if (initialColor == flickerColor)
 	        {
-				yield return null;
+				yield break;
 	        }
 
 	        float flickerStop = Time.time + flickerDuration;

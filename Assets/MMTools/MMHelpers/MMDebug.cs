@@ -138,6 +138,10 @@ namespace MoreMountains.Tools
 
 		private static void DrawArrowEnd (bool drawGizmos, Vector3 arrowEndPosition, Vector3 direction, Color color, float arrowHeadLength = 0.25f, float arrowHeadAngle = 40.0f)
 	    {
+			if (direction == Vector3.zero)
+			{
+				return;
+			}
 	        Vector3 right = Quaternion.LookRotation (direction) * Quaternion.Euler (arrowHeadAngle, 0, 0) * Vector3.back;
 	        Vector3 left = Quaternion.LookRotation (direction) * Quaternion.Euler (-arrowHeadAngle, 0, 0) * Vector3.back;
 	        Vector3 up = Quaternion.LookRotation (direction) * Quaternion.Euler (0, arrowHeadAngle, 0) * Vector3.back;
@@ -209,6 +213,21 @@ namespace MoreMountains.Tools
 		{
 	    	Gizmos.color = color;
 			Gizmos.DrawWireSphere(position,size);
+		}
+
+		public static void DrawGizmoRectangle(Vector2 center, Vector2 size, Color color)
+		{
+			Gizmos.color = color;
+
+			Vector3 v3TopLeft = new Vector3(center.x - size.x/2, center.y + size.y/2, 0);
+			Vector3 v3TopRight = new Vector3(center.x + size.x/2, center.y + size.y/2, 0);;
+			Vector3 v3BottomRight = new Vector3(center.x + size.x/2, center.y - size.y/2, 0);;
+			Vector3 v3BottomLeft = new Vector3(center.x - size.x/2, center.y - size.y/2, 0);;
+
+			Gizmos.DrawLine(v3TopLeft,v3TopRight);
+			Gizmos.DrawLine(v3TopRight,v3BottomRight);
+			Gizmos.DrawLine(v3BottomRight,v3BottomLeft);
+			Gizmos.DrawLine(v3BottomLeft,v3TopLeft);
 		}
 
 
