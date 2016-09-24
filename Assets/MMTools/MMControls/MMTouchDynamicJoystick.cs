@@ -32,7 +32,7 @@ namespace MoreMountains.Tools
 			base.Awake();
 
 			// we store the detection zone's initial position
-			_initialPosition = transform.position;	
+			_initialPosition = GetComponent<RectTransform>().localPosition;	
 
 			// we instantiate our joystick knob 
 			if (JoystickKnobImage!=null)
@@ -81,7 +81,7 @@ namespace MoreMountains.Tools
 			base.OnEndDrag(eventData);
 			if (RestorePosition)
 			{
-				transform.position = _initialPosition;
+				GetComponent<RectTransform>().localPosition = _initialPosition;
 			}
 		}
 	}
