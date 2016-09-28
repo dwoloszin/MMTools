@@ -100,13 +100,23 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void UpdatePosition()
 		{
-			_positionT = (Time.time - _positionTimer) / _randomPositionFrequency;
-			_rotationT = (Time.time - _rotationTimer) / _randomRotationFrequency;
-			_scaleT = (Time.time - _scaleTimer) / _randomScaleFrequency;
+			if (_randomPositionFrequency > 0)
+			{
+				_positionT = (Time.time - _positionTimer) / _randomPositionFrequency;
+				transform.localPosition = Vector3.Lerp (transform.localPosition, _newPosition, _positionT);				
+			}
 
-			transform.localPosition = Vector3.Lerp (transform.localPosition, _newPosition, _positionT);
-			transform.localRotation = Quaternion.Lerp (transform.localRotation, _newRotation, _rotationT);
-			transform.localScale = Vector3.Lerp (transform.localScale, _newScale, _scaleT);
+			if (_randomRotationFrequency > 0)
+			{
+				_rotationT = (Time.time - _rotationTimer) / _randomRotationFrequency;
+				transform.localRotation = Quaternion.Lerp (transform.localRotation, _newRotation, _rotationT);
+			}
+
+			if (_randomScaleFrequency > 0)
+			{
+				_scaleT = (Time.time - _scaleTimer) / _randomScaleFrequency;
+				transform.localScale = Vector3.Lerp (transform.localScale, _newScale, _scaleT);
+			}
 		}
 
 		/// <summary>
