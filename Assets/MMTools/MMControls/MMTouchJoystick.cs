@@ -63,7 +63,7 @@ namespace MoreMountains.Tools
 		/// <summary>
 		/// On Start, we get our working canvas, and we set our neutral position
 		/// </summary>
-		protected virtual void Awake()
+		protected virtual void Start()
 		{
 			Initialize();
 		}
