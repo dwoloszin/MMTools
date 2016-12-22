@@ -35,6 +35,18 @@ namespace MoreMountains.Tools
 			return Physics2D.Raycast(rayOriginPoint,rayDirection,rayDistance,mask);		
 		}
 
+
+		public static RaycastHit2D MonoRayCastNonAlloc(RaycastHit2D[] array, Vector2 rayOriginPoint, Vector2 rayDirection, float rayDistance, LayerMask mask, Color color,bool drawGizmo=false)
+		{	
+			if (drawGizmo) 
+			{
+				Debug.DrawRay (rayOriginPoint, rayDirection * rayDistance, color);
+			}
+			Physics2D.RaycastNonAlloc(rayOriginPoint, rayDirection, array, rayDistance, mask);
+
+			return array [0];		
+		}
+
 		/// <summary>
 		/// Draws a debug ray in 3D and does the actual raycast
 		/// </summary>

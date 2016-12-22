@@ -36,6 +36,11 @@ namespace MoreMountains.Tools
 	    /// </summary>
 	    protected virtual void Awake ()
 		{
+			if (!Application.isPlaying)
+			{
+				return;
+			}
+
 			_instance = this as T;			
 		}
 	}

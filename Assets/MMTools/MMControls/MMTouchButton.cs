@@ -13,8 +13,9 @@ namespace MoreMountains.Tools
 	/// Bind pressed down, pressed continually and released actions to it from the inspector
 	/// Handles mouse and multi touch
 	/// </summary>
-	public class MMTouchButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+	public class MMTouchButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IPointerEnterHandler
 	{
+		public enum ButtonStates { Off, ButtonDown, ButtonPressed, ButtonUp }
 		[Header("Binding")]
 		/// The method(s) to call when the button gets pressed down
 		public UnityEvent ButtonPressedFirstTime;
@@ -27,6 +28,14 @@ namespace MoreMountains.Tools
 		[Information("Here you can set the opacity of the button when it's pressed. Useful for visual feedback.",InformationAttribute.InformationType.Info,false)]
 		/// the new opacity to apply to the canvas group when the button is pressed
 		public float PressedOpacity = 0.5f;
+
+		[Header("Mouse Mode")]
+		[Information("If you set this to true, you'll need to actually press the button for it to be triggered, otherwise a simple hover will trigger it (better for touch input).",InformationAttribute.InformationType.Info,false)]
+		/// If you set this to true, you'll need to actually press the button for it to be triggered, otherwise a simple hover will trigger it (better for touch input).
+		public bool MouseMode = false;
+
+		/// the current state of the button (off, down, pressed or up)
+		public ButtonStates CurrentState { get; protected set; }
 
 	    protected bool _zonePressed = false;
 	    protected CanvasGroup _canvasGroup;
@@ -50,18 +59,38 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void Update()
 	    {
-	        if (_zonePressed)
+			if (CurrentState == ButtonStates.ButtonPressed)
 	        {
 	            OnPointerPressed();
 	        }
 	    }
 
 		/// <summary>
+		/// At the end of every frame, we change our button's state if needed
+		/// </summary>
+		protected virtual void LateUpdate()
+		{
+			if (CurrentState == ButtonStates.ButtonUp)
+			{
+				CurrentState = ButtonStates.Off;
+			}
+			if (CurrentState == ButtonStates.ButtonDown)
+			{
+				CurrentState = ButtonStates.ButtonPressed;
+			}
+		}
+
+		/// <summary>
 		/// Triggers the bound pointer down action
 		/// </summary>
 		public virtual void OnPointerDown(PointerEventData data)
 	    {
-	        _zonePressed = true;
+			if (CurrentState != ButtonStates.Off)
+			{
+				return;
+			}
+
+			CurrentState = ButtonStates.ButtonDown;
 			if (_canvasGroup!=null)
 			{
 				_canvasGroup.alpha=PressedOpacity;
@@ -77,7 +106,12 @@ namespace MoreMountains.Tools
 		/// </summary>
 		public virtual void OnPointerUp(PointerEventData data)
 		{
-	        _zonePressed = false;
+			if (CurrentState != ButtonStates.ButtonPressed && CurrentState != ButtonStates.ButtonDown)
+			{
+				return;
+			}
+
+			CurrentState = ButtonStates.ButtonUp;
 			if (_canvasGroup!=null)
 			{
 				_canvasGroup.alpha=_initialOpacity;
@@ -93,6 +127,7 @@ namespace MoreMountains.Tools
 		/// </summary>
 		public virtual void OnPointerPressed()
 	    {
+			CurrentState = ButtonStates.ButtonPressed;
 			if (ButtonPressed != null)
 			{
 				ButtonPressed.Invoke();
@@ -112,8 +147,30 @@ namespace MoreMountains.Tools
 	    /// </summary>
 	    protected virtual void ResetButton()
 	    {
-			_zonePressed=false;
 			_canvasGroup.alpha = _initialOpacity;
-	    }
+			CurrentState = ButtonStates.Off;
+		}
+
+		/// <summary>
+		/// Triggers the bound pointer enter action when touch enters zone
+		/// </summary>
+		public void OnPointerEnter(PointerEventData data)
+		{
+			if (!MouseMode)
+			{
+				OnPointerDown (data);
+			}
+		}
+
+		/// <summary>
+		/// Triggers the bound pointer exit action when touch is out of zone
+		/// </summary>
+		public void OnPointerExit(PointerEventData data)
+		{
+			if (!MouseMode)
+			{
+				OnPointerUp(data);	
+			}
+		}
 	}
 }

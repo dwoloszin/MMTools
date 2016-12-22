@@ -18,7 +18,8 @@ namespace MoreMountains.Tools
 		/// </summary>
 	    protected virtual void Awake()
 	    {
-	        Instance = this;
+			Instance = this;
+			FillObjectPool();
 	    }
 
 	    /// <summary>
@@ -26,7 +27,7 @@ namespace MoreMountains.Tools
 	    /// </summary>
 	    protected virtual void Start()
 	    {
-	        FillObjectPool();
+			
 	    }
 
 		/// <summary>

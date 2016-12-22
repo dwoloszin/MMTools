@@ -38,6 +38,11 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void Awake ()
 		{
+			if (!Application.isPlaying)
+			{
+				return;
+			}
+
 			InitializationTime=Time.time;
 
 			DontDestroyOnLoad (this.gameObject);

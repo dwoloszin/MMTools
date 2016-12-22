@@ -32,10 +32,10 @@ namespace MoreMountains.Tools
 	        float flickerStop = Time.time + flickerDuration;
 
 	        while (Time.time<flickerStop)
-	        {
+			{
+				renderer.material.color = flickerColor;
+				yield return new WaitForSeconds(flickerSpeed);
 	            renderer.material.color = initialColor;
-	            yield return new WaitForSeconds(flickerSpeed);
-	            renderer.material.color = flickerColor;
 	            yield return new WaitForSeconds(flickerSpeed);
 	        }
 

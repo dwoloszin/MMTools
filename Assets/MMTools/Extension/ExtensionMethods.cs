@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace MoreMountains.Tools
 {	
@@ -39,6 +40,19 @@ namespace MoreMountains.Tools
         {
              return ((mask.value & (1 << gameobject.layer)) > 0);
         }
+
+		static List<Component> m_ComponentCache = new List<Component>();
+
+		public static Component GetComponentNoAlloc(this GameObject @this, System.Type componentType) 
+		{ 
+			@this.GetComponents(componentType, m_ComponentCache); 
+
+			var component = m_ComponentCache.Count > 0 ? m_ComponentCache[0] : null; 
+
+			m_ComponentCache.Clear(); 
+
+			return component; 
+		} 
      
 	}
 }

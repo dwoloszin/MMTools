@@ -4,7 +4,8 @@ using System.Collections;
 using MoreMountains.Tools;
 
 /// <summary>
-/// Add this class to a gameObject with a Text component and it'll feed it the number of FPS in real time.
+/// Add this bar to an object and link it to a bar (possibly the same object the script is on), and you'll be able to resize the bar object based on a current value, located between a min and max value.
+/// See the HealthBar.cs script for a use case
 /// </summary>
 public class ProgressBar : MonoBehaviour
 {

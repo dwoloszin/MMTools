@@ -25,6 +25,11 @@ namespace MoreMountains.Tools
 			gameObject.SetActive(false);
 		}
 
+		protected virtual void Update()
+		{
+
+		}
+
 		/// <summary>
 		/// When the objects get enabled (usually after having been pooled from an ObjectPooler, we initiate its death countdown.
 		/// </summary>

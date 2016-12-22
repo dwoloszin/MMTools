@@ -1,196 +1,215 @@
-﻿using UnityEngine;
+﻿#define EVENTROUTER_THROWEXCEPTIONS 
+#if EVENTROUTER_THROWEXCEPTIONS
+//#define EVENTROUTER_REQUIRELISTENER // Uncomment this if you want listeners to be required for sending events.
+#endif
+
+using System;
+using UnityEngine;
 using UnityEngine.Events;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace MoreMountains.Tools
 {	
-	public class FloatEvent : UnityEvent<float> { }
-	public class IntEvent : UnityEvent<int> { }
-	public class StringEvent : UnityEvent<string> { }
+	/// <summary>
+	/// MMGameEvents are used throughout the game for general game events (game started, game ended, life lost, etc.)
+	/// </summary>
+	public struct MMGameEvent
+	{
+		public string EventName;
+		public MMGameEvent(string newName)
+		{
+			EventName = newName;
+		}
+	}
+
+	public struct MMSfxEvent
+	{
+		public AudioClip ClipToPlay;
+		public MMSfxEvent(AudioClip clipToPlay)
+		{
+			ClipToPlay = clipToPlay;
+		}
+	}
 
 	/// <summary>
-	/// Manages the various game events
-	/// Trigger them to broadcast them to other classes that have registered to it
+	/// This class handles event management, and can be used to broadcast events throughout the game, to tell one class (or many) that something's happened.
+	/// Events are structs, you can define any kind of events you want. This manager comes with MMGameEvents, which are 
+	/// basically just made of a string, but you can work with more complex ones if you want.
+	/// 
+	/// To trigger a new event, from anywhere, just call MMEventManager.TriggerEvent(YOUR_EVENT);
+	/// For example : MMEventManager.TriggerEvent(new MMGameEvent("GameStart")); will broadcast an MMGameEvent named GameStart to all listeners.
+	///
+	/// To start listening to an event from any class, there are 3 things you must do : 
+	///
+	/// 1 - tell that your class implements the MMEventListener interface for that kind of event.
+	/// For example: public class GUIManager : Singleton<GUIManager>, MMEventListener<MMGameEvent>
+	/// You can have more than one of these (one per event type).
+	///
+	/// 2 - On Enable and Disable, respectively start and stop listening to the event :
+	/// void OnEnable()
+	/// {
+	/// 	this.MMEventStartListening<MMGameEvent>();
+	/// }
+	/// void OnDisable()
+	/// {
+	/// 	this.MMEventStopListening<MMGameEvent>();
+	/// }
+	/// 
+	/// 3 - Implement the MMEventListener interface for that event. For example :
+	/// public void OnMMEvent(MMGameEvent gameEvent)
+	/// {
+	/// 	if (gameEvent.eventName == "GameOver")
+	///		{
+	///			// DO SOMETHING
+	///		}
+	/// } 
+	/// will catch all events of type MMGameEvent emitted from anywhere in the game, and do something if it's named GameOver
 	/// </summary>
-
 	public static class MMEventManager 
 	{
-		private static Dictionary <string, UnityEvent> eventDictionary;
-		private static Dictionary <string, FloatEvent> floatEventDictionary;
-		private static Dictionary <string, IntEvent> intEventDictionary;
-		private static Dictionary <string, StringEvent> stringEventDictionary;
+	    private static Dictionary<Type, List<MMEventListenerBase>> _subscribersList;
 
-	    private static void Init ()
-		{
-	        if (eventDictionary == null)
+		static MMEventManager()
+	    {
+	        _subscribersList = new Dictionary<Type, List<MMEventListenerBase>>();
+	    }
+
+	    /// <summary>
+	    /// Adds a new subscriber to a certain event.
+	    /// </summary>
+		/// <param name="listener">listener.</param>
+	    /// <typeparam name="MMEvent">The event type.</typeparam>
+	    public static void AddListener<MMEvent>( MMEventListener<MMEvent> listener ) where MMEvent : struct
+	    {
+	        Type eventType = typeof( MMEvent );
+
+	        if( !_subscribersList.ContainsKey( eventType ) )
+	            _subscribersList[eventType] = new List<MMEventListenerBase>();
+
+	        if( !SubscriptionExists( eventType, listener ) )
+	            _subscribersList[eventType].Add( listener );
+	    }
+
+	    /// <summary>
+	    /// Removes a subscriber from a certain event.
+	    /// </summary>
+		/// <param name="listener">listener.</param>
+	    /// <typeparam name="MMEvent">The event type.</typeparam>
+	    public static void RemoveListener<MMEvent>( MMEventListener<MMEvent> listener ) where MMEvent : struct
+	    {
+	        Type eventType = typeof( MMEvent );
+
+	        if( !_subscribersList.ContainsKey( eventType ) )
 	        {
-	            eventDictionary = new Dictionary<string, UnityEvent>();
-			}
-			if (floatEventDictionary == null)
+				#if EVENTROUTER_THROWEXCEPTIONS
+					throw new ArgumentException( string.Format( "Removing listener \"{0}\", but the event type \"{1}\" isn't registered.", listener, eventType.ToString() ) );
+				#else
+					return;
+				#endif
+	        }
+
+			List<MMEventListenerBase> subscriberList = _subscribersList[eventType];
+	        bool listenerFound = false;
+
+			foreach(MMEventListenerBase subscriber in subscriberList )
 	        {
-				floatEventDictionary = new Dictionary<string, FloatEvent>();
-			}
-			if (intEventDictionary == null)
+	            if( subscriber == listener )
+	            {
+	                subscriberList.Remove( subscriber );
+	                listenerFound = true;
+
+	                if( subscriberList.Count == 0 )
+	                    _subscribersList.Remove( eventType );
+
+	                return;
+	            }
+	        }
+
+			#if EVENTROUTER_THROWEXCEPTIONS
+		        if( !listenerFound )
+		        {
+					throw new ArgumentException( string.Format( "Removing listener, but the supplied receiver isn't subscribed to event type \"{0}\".", eventType.ToString() ) );
+		        }
+			#endif
+	    }
+
+	    /// <summary>
+	    /// Triggers an event. All instances that are subscribed to it will receive it (and will potentially act on it).
+	    /// </summary>
+		/// <param name="newEvent">The event to trigger.</param>
+	    /// <typeparam name="MMEvent">The 1st type parameter.</typeparam>
+	    public static void TriggerEvent<MMEvent>( MMEvent newEvent ) where MMEvent : struct
+	    {
+	        List<MMEventListenerBase> list;
+	        if( !_subscribersList.TryGetValue( typeof( MMEvent ), out list ) )
+			#if EVENTROUTER_REQUIRELISTENER
+			            throw new ArgumentException( string.Format( "Attempting to send event of type \"{0}\", but no listener for this type has been found. Make sure this.Subscribe<{0}>(EventRouter) has been called, or that all listeners to this event haven't been unsubscribed.", typeof( MMEvent ).ToString() ) );
+			#else
+			                return;
+			#endif
+
+	        foreach( MMEventListenerBase b in list )
 	        {
-				intEventDictionary = new Dictionary<string, IntEvent>();
-			}
-			if (stringEventDictionary == null)
-	        {
-				stringEventDictionary = new Dictionary<string, StringEvent>();
+	            ( b as MMEventListener<MMEvent> ).OnMMEvent( newEvent );
 	        }
 	    }
 
-	    public static void StartListening (string eventName, UnityAction listener)
+	    /// <summary>
+	    /// Checks if there are subscribers for a certain type of events
+	    /// </summary>
+	    /// <returns><c>true</c>, if exists was subscriptioned, <c>false</c> otherwise.</returns>
+	    /// <param name="type">Type.</param>
+	    /// <param name="receiver">Receiver.</param>
+	    private static bool SubscriptionExists( Type type, MMEventListenerBase receiver )
 	    {
-	    	Init();
-			UnityEvent thisEvent = null;
-	        if (eventDictionary.TryGetValue (eventName, out thisEvent))
-	        {
-	            thisEvent.AddListener (listener);
-	        } 
-	        else
-	        {
-	            thisEvent = new UnityEvent ();
-	            thisEvent.AddListener (listener);
-	            eventDictionary.Add (eventName, thisEvent);
-	        }
-	     }
+	        List<MMEventListenerBase> receivers;
 
-		public static void StartListeningFloatEvent (string eventName, UnityAction<float> listener)
-		{
-	    	Init();
-			FloatEvent thisFloatEvent = null;
-			if (floatEventDictionary.TryGetValue (eventName, out thisFloatEvent))
+	        if( !_subscribersList.TryGetValue( type, out receivers ) ) return false;
+
+	        bool exists = false;
+
+			foreach( MMEventListenerBase subscription in receivers )
 	        {
-				thisFloatEvent.AddListener (listener);
-	        } 
-	        else
-	        {
-				thisFloatEvent = new FloatEvent ();
-				thisFloatEvent.AddListener (listener);
-				floatEventDictionary.Add (eventName, thisFloatEvent);
+	            if( subscription == receiver )
+	            {
+	                exists = true;
+	                break;
+	            }
 	        }
+
+	        return exists;
+	    }
+	}
+
+	/// <summary>
+	/// Static class that allows any class to start or stop listening to events
+	/// </summary>
+	public static class EventRegister
+	{
+	    public delegate void Delegate<T>( T eventType );
+
+	    public static void MMEventStartListening<EventType>( this MMEventListener<EventType> caller ) where EventType : struct
+	    {
+			MMEventManager.AddListener<EventType>( caller );
 	    }
 
-		public static void StartListeningIntEvent (string eventName, UnityAction<int> listener)
-		{
-	    	Init();
-			IntEvent thisIntEvent = null;
-			if (intEventDictionary.TryGetValue (eventName, out thisIntEvent))
-	        {
-				thisIntEvent.AddListener (listener);
-	        } 
-	        else
-	        {
-				thisIntEvent = new IntEvent ();
-				thisIntEvent.AddListener (listener);
-				intEventDictionary.Add (eventName, thisIntEvent);
-	        }
+		public static void MMEventStopListening<EventType>( this MMEventListener<EventType> caller ) where EventType : struct
+	    {
+			MMEventManager.RemoveListener<EventType>( caller );
 	    }
+	}
 
-		public static void StartListeningStringEvent (string eventName, UnityAction<string> listener)
-		{
-	    	Init();
-			StringEvent thisStringEvent = null;
-			if (stringEventDictionary.TryGetValue (eventName, out thisStringEvent))
-	        {
-				thisStringEvent.AddListener (listener);
-	        } 
-	        else
-	        {
-				thisStringEvent = new StringEvent ();
-				thisStringEvent.AddListener (listener);
-				stringEventDictionary.Add (eventName, thisStringEvent);
-	        }
-		}	    	
+	/// <summary>
+	/// Event listener basic interface
+	/// </summary>
+	public interface MMEventListenerBase { };
 
-		public static void StopListening (string eventName, UnityAction listener)
-	    {
-			Init();
-			UnityEvent thisEvent = null;
-	        if (eventDictionary.TryGetValue (eventName, out thisEvent))
-	        {
-	            thisEvent.RemoveListener (listener);
-	        }
-		} 	
-
-		public static void StopListeningFloatEvent (string eventName, UnityAction<float> listener)
-	    {
-			Init();
-			FloatEvent thisFloatEvent = null;
-	        if (floatEventDictionary.TryGetValue (eventName, out thisFloatEvent))
-	        {
-	            thisFloatEvent.RemoveListener (listener);
-	        }
-		}
-
-		public static void StopListeningIntEvent (string eventName, UnityAction<int> listener)
-	    {
-			Init();
-			IntEvent thisIntEvent = null;
-	        if (intEventDictionary.TryGetValue (eventName, out thisIntEvent))
-	        {
-	            thisIntEvent.RemoveListener (listener);
-	        }
-		}
-
-		public static void StopListeningStringEvent (string eventName, UnityAction<string> listener)
-	    {
-			Init();
-			StringEvent thisStringEvent = null;
-	        if (stringEventDictionary.TryGetValue (eventName, out thisStringEvent))
-	        {
-	            thisStringEvent.RemoveListener (listener);
-	        }
-	   	}
-					
-
-				
-
-	    public static void TriggerEvent (string eventName)
-	    {
-			Init();
-
-	        UnityEvent thisEvent = null;
-	        if (eventDictionary.TryGetValue (eventName, out thisEvent))
-	        {
-	            thisEvent.Invoke ();
-	        }
-		}
-
-	    public static void TriggerFloatEvent (string eventName, float value)
-	    {
-			Init();
-
-	        FloatEvent thisEvent = null;
-	        if (floatEventDictionary.TryGetValue (eventName, out thisEvent))
-	        {
-				thisEvent.Invoke (value);
-	        }
-		}
-
-	    public static void TriggerIntEvent (string eventName, int value)
-	    {
-			Init();
-
-	        IntEvent thisEvent = null;
-	        if (intEventDictionary.TryGetValue (eventName, out thisEvent))
-	        {
-				thisEvent.Invoke (value);
-	        }
-		}
-
-	    public static void TriggerStringEvent (string eventName, string value)
-	    {
-			Init();
-
-	        StringEvent thisEvent = null;
-	        if (stringEventDictionary.TryGetValue (eventName, out thisEvent))
-	        {
-				thisEvent.Invoke (value);
-	        }
-	    }
-		
+	/// <summary>
+	/// A public interface you'll need to implement for each type of event you want to listen to.
+	/// </summary>
+	public interface MMEventListener<T> : MMEventListenerBase
+	{
+	    void OnMMEvent( T eventType );
 	}
 }

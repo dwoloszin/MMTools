@@ -89,7 +89,7 @@ namespace MoreMountains.Tools
 
 
 		// <summary>
-		/// Updates the animator bool after checking the parameter's existence.
+		/// Updates the animator bool without checking the parameter's existence.
 		/// </summary>
 		/// <param name="animator">Animator.</param>
 		/// <param name="parameterName">Parameter name.</param>
@@ -99,13 +99,18 @@ namespace MoreMountains.Tools
 			animator.SetBool(parameterName,value);
 		}
 
+		/// <summary>
+		/// Updates the animator trigger without checking the parameter's existence
+		/// </summary>
+		/// <param name="animator">Animator.</param>
+		/// <param name="parameterName">Parameter name.</param>
 		public static void UpdateAnimatorTrigger(Animator animator, string parameterName)
 		{
 			animator.SetTrigger(parameterName);
 		}
 
 		/// <summary>
-		/// Triggers an animator trigger after checking for the parameter's existence.
+		/// Triggers an animator trigger without checking for the parameter's existence.
 		/// </summary>
 		/// <param name="animator">Animator.</param>
 		/// <param name="parameterName">Parameter name.</param>
@@ -116,7 +121,7 @@ namespace MoreMountains.Tools
 		}
 		
 		/// <summary>
-		/// Updates the animator float after checking for the parameter's existence.
+		/// Updates the animator float without checking for the parameter's existence.
 		/// </summary>
 		/// <param name="animator">Animator.</param>
 		/// <param name="parameterName">Parameter name.</param>
@@ -127,7 +132,7 @@ namespace MoreMountains.Tools
 		}
 		
 		/// <summary>
-		/// Updates the animator integer after checking for the parameter's existence.
+		/// Updates the animator integer without checking for the parameter's existence.
 		/// </summary>
 		/// <param name="animator">Animator.</param>
 		/// <param name="parameterName">Parameter name.</param>
@@ -135,6 +140,73 @@ namespace MoreMountains.Tools
 		public static void UpdateAnimatorInteger(Animator animator, string parameterName,int value)
 		{
 			animator.SetInteger(parameterName,value);
+		}  
+
+
+
+
+		// <summary>
+		/// Updates the animator bool after checking the parameter's existence.
+		/// </summary>
+		/// <param name="animator">Animator.</param>
+		/// <param name="parameterName">Parameter name.</param>
+		/// <param name="value">If set to <c>true</c> value.</param>
+		public static void UpdateAnimatorBoolIfExists(Animator animator, string parameterName,bool value)
+		{
+			if (animator.HasParameterOfType(parameterName, AnimatorControllerParameterType.Bool))
+			{
+				animator.SetBool(parameterName,value);	
+			}
+		}
+
+		public static void UpdateAnimatorTriggerIfExists(Animator animator, string parameterName)
+		{
+			if (animator.HasParameterOfType(parameterName, AnimatorControllerParameterType.Trigger))
+			{
+				animator.SetTrigger(parameterName);
+			}
+		}
+
+		/// <summary>
+		/// Triggers an animator trigger after checking for the parameter's existence.
+		/// </summary>
+		/// <param name="animator">Animator.</param>
+		/// <param name="parameterName">Parameter name.</param>
+		/// <param name="value">If set to <c>true</c> value.</param>
+		public static void SetAnimatorTriggerIfExists(Animator animator, string parameterName)
+		{
+			if (animator.HasParameterOfType(parameterName, AnimatorControllerParameterType.Trigger))
+			{
+				animator.SetTrigger(parameterName);
+			}
+		}
+
+		/// <summary>
+		/// Updates the animator float after checking for the parameter's existence.
+		/// </summary>
+		/// <param name="animator">Animator.</param>
+		/// <param name="parameterName">Parameter name.</param>
+		/// <param name="value">Value.</param>
+		public static void UpdateAnimatorFloatIfExists(Animator animator, string parameterName,float value)
+		{
+			if (animator.HasParameterOfType(parameterName, AnimatorControllerParameterType.Float))
+			{
+				animator.SetFloat(parameterName,value);
+			}
+		}
+
+		/// <summary>
+		/// Updates the animator integer after checking for the parameter's existence.
+		/// </summary>
+		/// <param name="animator">Animator.</param>
+		/// <param name="parameterName">Parameter name.</param>
+		/// <param name="value">Value.</param>
+		public static void UpdateAnimatorIntegerIfExists(Animator animator, string parameterName,int value)
+		{
+			if (animator.HasParameterOfType(parameterName, AnimatorControllerParameterType.Int))
+			{
+				animator.SetInteger(parameterName,value);
+			}
 		}  
 	}
 }

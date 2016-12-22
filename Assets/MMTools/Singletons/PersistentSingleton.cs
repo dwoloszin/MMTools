@@ -8,6 +8,7 @@ namespace MoreMountains.Tools
 	public class PersistentSingleton<T> : MonoBehaviour	where T : Component
 	{
 		protected static T _instance;
+		protected bool _enabled;
 
 		/// <summary>
 		/// Singleton design pattern
@@ -36,13 +37,17 @@ namespace MoreMountains.Tools
 	    /// </summary>
 	    protected virtual void Awake ()
 		{
-
+			if (!Application.isPlaying)
+			{
+				return;
+			}
 
 			if(_instance == null)
 			{
 				//If I am the first instance, make me the Singleton
 				_instance = this as T;
 				DontDestroyOnLoad (transform.gameObject);
+				_enabled = true;
 			}
 			else
 			{
