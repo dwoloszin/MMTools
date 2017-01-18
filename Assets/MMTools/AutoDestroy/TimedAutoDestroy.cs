@@ -11,11 +11,14 @@ namespace MoreMountains.Tools
 	    /// The time (in seconds) before we destroy the object
 	    public float TimeBeforeDestruction=2;
 
+		protected WaitForSeconds _timeBeforeDestructionWFS;
+
 		/// <summary>
 		/// On Start(), we schedule the object's destruction
 		/// </summary>
 		protected virtual void Start ()
-	    {
+		{
+			_timeBeforeDestructionWFS = new WaitForSeconds(TimeBeforeDestruction);
 	        StartCoroutine(Destruction());
 		}
 		
@@ -24,7 +27,7 @@ namespace MoreMountains.Tools
 		/// </summary>
 	    protected virtual IEnumerator Destruction()
 	    {
-	        yield return new WaitForSeconds(TimeBeforeDestruction);
+			yield return _timeBeforeDestructionWFS;
 	        Destroy(gameObject);
 	    }
 	}

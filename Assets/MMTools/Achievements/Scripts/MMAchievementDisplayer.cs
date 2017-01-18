@@ -18,6 +18,8 @@ namespace MoreMountains.Tools
 		/// the fade in/out speed
 		public float AchievementFadeDuration = 0.2f;
 
+		protected WaitForSeconds _achievementFadeOutWFS;
+
 		/// <summary>
 		/// Instantiates an achievement display prefab and shows it for the specified duration
 		/// </summary>
@@ -66,7 +68,7 @@ namespace MoreMountains.Tools
 			{
 				achievementCanvasGroup.alpha = 0;
 				StartCoroutine(MMFade.FadeCanvasGroup(achievementCanvasGroup, AchievementFadeDuration, 1));
-				yield return new WaitForSeconds(AchievementFadeDuration + AchievementDisplayDuration);
+				yield return _achievementFadeOutWFS;
 				StartCoroutine(MMFade.FadeCanvasGroup(achievementCanvasGroup, AchievementFadeDuration, 0));
 			}
 		}
@@ -86,6 +88,7 @@ namespace MoreMountains.Tools
 		protected virtual void OnEnable()
 		{
 			this.MMEventStartListening<MMAchievementUnlockedEvent>();
+			_achievementFadeOutWFS = new WaitForSeconds (AchievementFadeDuration + AchievementDisplayDuration);
 		}
 
 		/// <summary>

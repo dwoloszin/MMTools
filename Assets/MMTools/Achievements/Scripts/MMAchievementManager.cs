@@ -200,7 +200,7 @@ namespace MoreMountains.Tools
 		/// </summary>
 		private static void DeterminePath(string specifiedFileName = "")
 		{
-			if (Application.platform == RuntimePlatform.IPhonePlayer) 
+			if (Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.Android) 
 			{
 				_savePath = Application.persistentDataPath + _saveFolderName;
 			} 
