@@ -20,6 +20,9 @@ public class ProgressBar : MonoBehaviour
 	{
 		_newPercent = MMMaths.Remap(currentValue,minValue,maxValue,0,1);
 		_newLocalScale.x = _newPercent;
-		ForegroundBar.localScale = _newLocalScale;		
+		if (ForegroundBar != null)
+		{
+			ForegroundBar.localScale = _newLocalScale;			
+		}
 	}
 }

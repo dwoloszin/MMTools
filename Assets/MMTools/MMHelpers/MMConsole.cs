@@ -46,6 +46,20 @@ namespace MoreMountains.Tools
 		}
 
 		/// <summary>
+		/// Sets the size of the font, and automatically deduces the character's height and width.
+		/// </summary>
+		/// <param name="fontSize">Font size.</param>
+		public virtual void SetFontSize(int fontSize)
+		{
+			Mathf.Clamp(fontSize,10,100);
+
+			_fontSize = fontSize;
+			_characterHeight = (int)Mathf.Round(1.6f * fontSize + 0.49f);
+			_characterWidth = (int)Mathf.Round(0.6f * fontSize + 0.49f);
+
+		}
+
+		/// <summary>
 		/// Replaces the content of the current message stack with the specified string 
 		/// </summary>
 		/// <param name="newMessage">New message.</param>

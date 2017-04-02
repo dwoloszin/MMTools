@@ -14,7 +14,7 @@ namespace MoreMountains.Tools
 
 	public static class MMDebug 
 	{
-		public static MMConsole _Console; 
+		public static MMConsole _console; 
 
 		/// <summary>
 		/// Draws a debug ray in 2D and does the actual raycast
@@ -42,9 +42,11 @@ namespace MoreMountains.Tools
 			{
 				Debug.DrawRay (rayOriginPoint, rayDirection * rayDistance, color);
 			}
-			Physics2D.RaycastNonAlloc(rayOriginPoint, rayDirection, array, rayDistance, mask);
-
-			return array [0];		
+			if (Physics2D.RaycastNonAlloc(rayOriginPoint, rayDirection, array, rayDistance, mask) > 0)
+			{
+				return array[0];
+			}
+			return new RaycastHit2D();        	
 		}
 
 		/// <summary>
@@ -73,9 +75,16 @@ namespace MoreMountains.Tools
 		/// Outputs the message object to the console, prefixed with the current timestamp
 		/// </summary>
 		/// <param name="message">Message.</param>
-		public static void DebugLogTime(object message)
+		public static void DebugLogTime(object message, string color="")
 		{
-			Debug.Log (Time.time + " " + message);
+			string colorPrefix = "";
+			string colorSuffix = "";
+			if (color != "")
+			{
+				colorPrefix = "<color="+color+">";
+				colorSuffix = "</color>";
+			}
+			Debug.Log (colorPrefix + Time.time + " " + message + colorSuffix);
 
 		}
 
@@ -86,7 +95,7 @@ namespace MoreMountains.Tools
 		public static void DebugOnScreen(string message)
 		{
 			InstantiateOnScreenConsole();
-			_Console.AddMessage(message);
+			_console.AddMessage(message);
 		}
 
 		/// <summary>
@@ -94,23 +103,25 @@ namespace MoreMountains.Tools
 		/// </summary>
 		/// <param name="label">Label.</param>
 		/// <param name="value">Value.</param>
-		public static void DebugOnScreen(string label, object value)
+		/// <param name="fontSize">The optional font size.</param>
+		public static void DebugOnScreen(string label, object value, int fontSize=10)
 		{
-			InstantiateOnScreenConsole();
-			_Console.AddMessage("<b>"+label+"</b> : "+value);
+			InstantiateOnScreenConsole(fontSize);
+			_console.AddMessage("<b>"+label+"</b> : "+value);
 		}
 
 		/// <summary>
 		/// Instantiates the on screen console if there isn't one already
 		/// </summary>
-		public static void InstantiateOnScreenConsole()
+		public static void InstantiateOnScreenConsole(int fontSize=10)
 		{
-			if (_Console == null)
+			if (_console == null)
 			{
 				// we instantiate the console
 				GameObject newGameObject = new GameObject();
 				newGameObject.name="MMConsole";
-				_Console = newGameObject.AddComponent<MMConsole>();
+				_console = newGameObject.AddComponent<MMConsole>();
+				_console.SetFontSize(fontSize);
 			}
 		}
 
