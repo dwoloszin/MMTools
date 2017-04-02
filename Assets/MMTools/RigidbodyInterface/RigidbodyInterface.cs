@@ -30,6 +30,10 @@ namespace MoreMountains.Tools
 	        set { }
 	    }
 
+		/// <summary>
+		/// Only use if you absolutely need to target the rigidbody2D specifically
+		/// </summary>
+		/// <value>The internal rigid body2 d.</value>
 		public Rigidbody2D InternalRigidBody2D 
 		{
 			get {
@@ -37,35 +41,16 @@ namespace MoreMountains.Tools
 			}
 		}
 
+		/// <summary>
+		/// Only use if you absolutely need to target the rigidbody2D specifically
+		/// </summary>
+		/// <value>The internal rigid body.</value>
 		public Rigidbody InternalRigidBody 
 		{
 			get {
 				return _rigidbody;
 			}
 		} 
-
-		/// <summary>
-		/// Initialization
-		/// </summary>
-		protected virtual void Awake () 
-		{
-			// we check for rigidbodies, and depending on their presence determine if the interface will work with 2D or 3D rigidbodies and colliders.
-			_rigidbody2D=GetComponent<Rigidbody2D>();
-			_rigidbody=GetComponent<Rigidbody>();
-			
-			if (_rigidbody2D != null) 
-			{
-				_mode="2D";
-			}
-			if (_rigidbody != null) 
-			{
-				_mode="3D";
-			}
-			if (_rigidbody==null && _rigidbody2D==null)
-			{
-				Debug.LogWarning("A RigidBodyInterface has been added to "+gameObject+" but there's no Rigidbody or Rigidbody2D on it.", gameObject);
-			}
-		}
 
 		/// <summary>
 		/// Gets or sets the velocity of the rigidbody associated to the interface.
@@ -102,9 +87,77 @@ namespace MoreMountains.Tools
 			}
 		}
 
+		/// <summary>
+		/// Gets the collider bounds.
+		/// </summary>
+		/// <value>The collider bounds.</value>
+		public Bounds ColliderBounds 
+		{ 
+			get 
+			{  
+				if (_rigidbody2D != null) 
+				{
+					return _collider2D.bounds;
+				}
+				if (_rigidbody != null) 
+				{
+					return _collider.bounds;
+				}
+				return new Bounds();
+			}
+		}
+
+		/// <summary>
+		/// Gets a value indicating whether this <see cref="MoreMountains.Tools.RigidbodyInterface"/> is kinematic.
+		/// </summary>
+		/// <value><c>true</c> if is kinematic; otherwise, <c>false</c>.</value>
+		public bool isKinematic
+		{
+			get
+			{
+				if (_mode == "2D") 
+				{
+					return(_rigidbody2D.isKinematic);
+				}
+				if (_mode == "3D")
+				{			
+					return(_rigidbody.isKinematic);
+				}
+				return false;
+			}
+		}
+
 		protected string _mode;
 		protected Rigidbody2D _rigidbody2D;
 		protected Rigidbody _rigidbody;
+		protected Collider2D _collider2D;
+		protected Collider _collider;
+		protected Bounds _colliderBounds;
+
+		/// <summary>
+		/// Initialization
+		/// </summary>
+		protected virtual void Awake () 
+		{
+			// we check for rigidbodies, and depending on their presence determine if the interface will work with 2D or 3D rigidbodies and colliders.
+			_rigidbody2D=GetComponent<Rigidbody2D>();
+			_rigidbody=GetComponent<Rigidbody>();
+
+			if (_rigidbody2D != null) 
+			{
+				_mode="2D";
+				_collider2D = GetComponent<Collider2D> ();
+			}
+			if (_rigidbody != null) 
+			{
+				_mode="3D";
+				_collider = GetComponent<Collider> ();
+			}
+			if (_rigidbody==null && _rigidbody2D==null)
+			{
+				Debug.LogWarning("A RigidBodyInterface has been added to "+gameObject+" but there's no Rigidbody or Rigidbody2D on it.", gameObject);
+			}
+		}
 		
 		/// <summary>
 		/// Adds the specified force to the rigidbody associated to the interface..
@@ -122,6 +175,24 @@ namespace MoreMountains.Tools
 			}
 		}
 
+		/// <summary>
+		/// Adds the specified relative force to the rigidbody associated to the interface..
+		/// </summary>
+		/// <param name="force">Force.</param>
+		public virtual void AddRelativeForce(Vector3 force)
+		{
+			if (_mode == "2D") 
+			{
+				_rigidbody2D.AddRelativeForce(force,ForceMode2D.Impulse);
+			}
+			if (_mode == "3D")
+			{
+				_rigidbody.AddRelativeForce(force);
+			}
+		}
+
+
+
 	    /// <summary>
 	    /// Move the rigidbody to the position vector specified
 	    /// </summary>
@@ -138,8 +209,9 @@ namespace MoreMountains.Tools
 	        }
 	    }
 
-
-
+		/// <summary>
+		/// Resets the angular velocity.
+		/// </summary>
 		public virtual void ResetAngularVelocity()
 		{
 			if (_mode == "2D")
@@ -152,6 +224,9 @@ namespace MoreMountains.Tools
 			}	
 		}
 
+		/// <summary>
+		/// Resets the rotation.
+		/// </summary>
 		public virtual void ResetRotation()
 		{
 			if (_mode == "2D")
@@ -174,13 +249,14 @@ namespace MoreMountains.Tools
 		{
 			if (_mode == "2D") 
 			{
-				GetComponent<Rigidbody2D>().isKinematic=status;
+				_rigidbody2D.isKinematic=status;
 			}
 			if (_mode == "3D")
 			{			
-				GetComponent<Rigidbody>().isKinematic=status;
+				_rigidbody.isKinematic=status;
 			}
 		}
+
 		
 		/// <summary>
 		/// Enables the box collider associated to the interface.
