@@ -43,6 +43,16 @@ namespace MoreMountains.Tools
 		}
 
 		/// <summary>
+		/// Rounds all components of a Vector3.
+		/// </summary>
+		/// <returns>The vector3.</returns>
+		/// <param name="vector">Vector.</param>
+		public static Vector3 RoundVector3 (Vector3 vector)
+		{
+			return new Vector3 (Mathf.Round (vector.x), Mathf.Round (vector.y), Mathf.Round (vector.z));
+		}
+
+		/// <summary>
 		/// Returns a random vector3 from 2 defined vector3.
 		/// </summary>
 		/// <returns>The vector3.</returns>

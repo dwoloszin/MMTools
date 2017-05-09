@@ -11,6 +11,10 @@ namespace MoreMountains.Tools
 	/// </summary>
 	public enum MMPossibleSwipeDirections { Up, Down, Left, Right }
 
+
+	[System.Serializable]
+	public class SwipeEvent : UnityEvent<MMSwipeEvent> {}
+
 	/// <summary>
 	/// An event usually triggered when a swipe happens. It contains the swipe "base" direction, and detailed information if needed (angle, length, origin and destination
 	/// </summary>
@@ -51,6 +55,11 @@ namespace MoreMountains.Tools
 		/// the maximum press length of a swipe
 		public float MaximumPressLength = 10f;
 
+		/// The method(s) to call when the zone is swiped
+		public SwipeEvent ZoneSwiped;
+		/// The method(s) to call while the zone is being pressed
+		public UnityEvent ZonePressed;
+
 		[Header("Mouse Mode")]
 		[Information("If you set this to true, you'll need to actually press the button for it to be triggered, otherwise a simple hover will trigger it (better for touch input).",InformationAttribute.InformationType.Info,false)]
 		/// If you set this to true, you'll need to actually press the button for it to be triggered, otherwise a simple hover will trigger it (better for touch input).
@@ -65,12 +74,20 @@ namespace MoreMountains.Tools
 
 		protected virtual void Swipe()
 		{
-			MMEventManager.TriggerEvent(new MMSwipeEvent(_swipeDirection,_angle, _length, _firstTouchPosition, _destination));
+			MMSwipeEvent swipeEvent = new MMSwipeEvent (_swipeDirection, _angle, _length, _firstTouchPosition, _destination);
+			MMEventManager.TriggerEvent(swipeEvent);
+			if (ZoneSwiped != null)
+			{
+				ZoneSwiped.Invoke (swipeEvent);
+			}
 		}
 
 		protected virtual void Press()
 		{
-			
+			if (ZonePressed != null)
+			{
+				ZonePressed.Invoke ();
+			}
 		}
 
 		/// <summary>

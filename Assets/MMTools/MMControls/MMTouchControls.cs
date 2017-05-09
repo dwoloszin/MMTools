@@ -47,7 +47,7 @@ namespace MoreMountains.Tools
 			if (ForcedMode==InputForcedMode.Desktop)
 			{
 				SetMobileControlsActive(false);
-				IsMobile = false;					
+				IsMobile = false;		
 			}
 		}
 		
