@@ -60,7 +60,7 @@ namespace MoreMountains.Tools
 		/// <param name="debug">If set to <c>true</c> debug.</param>
 		/// <param name="color">Color.</param>
 		/// <param name="drawGizmo">If set to <c>true</c> draw gizmo.</param>
-		public static RaycastHit Raycast3D(Vector3 rayOriginPoint, Vector2 rayDirection, float rayDistance, LayerMask mask, Color color,bool drawGizmo=false)
+		public static RaycastHit Raycast3D(Vector3 rayOriginPoint, Vector3 rayDirection, float rayDistance, LayerMask mask, Color color,bool drawGizmo=false)
 		{
 			if (drawGizmo) 
 			{

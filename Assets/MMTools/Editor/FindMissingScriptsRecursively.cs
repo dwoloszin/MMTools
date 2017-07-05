@@ -18,7 +18,7 @@ namespace MoreMountains.Tools
 	        EditorWindow.GetWindow(typeof(FindMissingScriptsRecursively));
 	    }
 	 
-	    public void OnGUI()
+		public void OnGUI()
 	    {
 	        if (GUILayout.Button("Find Missing Scripts in selected GameObjects"))
 	        {

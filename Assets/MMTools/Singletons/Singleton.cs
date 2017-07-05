@@ -23,7 +23,6 @@ namespace MoreMountains.Tools
 					if (_instance == null)
 					{
 						GameObject obj = new GameObject ();
-						//obj.hideFlags = HideFlags.HideAndDontSave;
 						_instance = obj.AddComponent<T> ();
 					}
 				}

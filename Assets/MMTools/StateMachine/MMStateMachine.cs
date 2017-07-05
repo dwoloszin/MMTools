@@ -81,25 +81,9 @@ namespace MoreMountains.Tools
 				return;
 			}
 
-
-			// if we've chosen to trigger events, we trigger our exit event
-			/*if (TriggerEvents)
-			{
-				MMEventManager.TriggerEvent(TargetName+CurrentState.ToString()+"Exit");
-			}*/
-
 			// we store our previous character movement state
 			PreviousState = CurrentState;
 			CurrentState = newState;
-
-			// uncomment this to debug state changes.
-			//MMDebug.DebugLogTime ("new state : " + newState);
-
-			// if we've chosen to trigger events, we trigger our enter event
-			/*if (TriggerEvents)
-			{
-				MMEventManager.TriggerEvent(TargetName+newState.ToString()+"Enter");
-			}*/
 
 			if (TriggerEvents)
 			{
@@ -112,20 +96,8 @@ namespace MoreMountains.Tools
 		/// </summary>
 		public virtual void RestorePreviousState()
 		{
-			// if we've chosen to trigger events, we trigger our exit event
-			/*if (TriggerEvents)
-			{
-				MMEventManager.TriggerEvent(TargetName+CurrentState.ToString()+"Exit");
-			}*/
-
 			// we restore our previous state
 			CurrentState = PreviousState;
-
-			// if we've chosen to trigger events, we trigger our enter event
-			/*if (TriggerEvents)
-			{
-				MMEventManager.TriggerEvent(TargetName+CurrentState.ToString()+"Enter");
-			}*/
 
 			if (TriggerEvents)
 			{

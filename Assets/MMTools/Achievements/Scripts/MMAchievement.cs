@@ -2,8 +2,6 @@
 using System.Collections;
 using System;
 
-//TODO plug on https://docs.unity3d.com/ScriptReference/SocialPlatforms.IAchievement.html
-
 namespace MoreMountains.Tools
 {	
 	/// <summary>

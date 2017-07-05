@@ -16,9 +16,10 @@ namespace MoreMountains.Tools
 		private static List<MMAchievement> Achievements;
 		private static MMAchievement _achievement = null;
 
-		const string _defaultFileName = "Achievements";
-		const string _saveFolderName = "/MMData/MMAchievements/";
-		private static string _savePath;
+		private const string _defaultFileName = "Achievements";
+		private const string _saveFolderName = "MMAchievements/";
+		private const string _saveFileExtension = ".achievements";
+
 		private static string _saveFileName;
 		private static string _listID;
 
@@ -121,6 +122,8 @@ namespace MoreMountains.Tools
 			return null;
 		}
 
+		// SAVE ------------------------------------------------------------------------------------------------------------------------------------
+
 		/// <summary>
 		/// Removes saved data and resets all achievements from a list
 		/// </summary>
@@ -137,11 +140,8 @@ namespace MoreMountains.Tools
 			}
 
 			DeterminePath (listID);
-			MMDebug.DebugLogTime ("Removing " + _saveFileName);
-			File.Delete(_saveFileName);
-			MMDebug.DebugLogTime ("Removing " + _saveFileName+".meta");
-			File.Delete(_saveFileName+".meta");
-			MMDebug.DebugLogTime ("Achievements Reset");
+			SaveLoadManager.DeleteSave(_saveFileName + _saveFileExtension, _saveFolderName);
+			Debug.LogFormat ("Achievements Reset");
 		}
 
 		public static void ResetAllAchievements()
@@ -150,26 +150,13 @@ namespace MoreMountains.Tools
 			ResetAchievements (_listID);
 		}
 
-		// SAVE ------------------------------------------------------------------------------------------------------------------------------------
-
 		/// <summary>
 		/// Loads the saved achievements file and updates the array with its content.
 		/// </summary>
 		public static void LoadSavedAchievements()
 		{
 			DeterminePath ();
-
-			// if the MMSaves directory or the save file doesn't exist, there's nothing to load, we do nothing and exit
-			if (!Directory.Exists(_savePath) || !File.Exists(_saveFileName))
-			{
-				//MMDebug.DebugLogTime("Nothing to load at "+_saveFileName);
-				return;
-			}
-			BinaryFormatter formatter = new BinaryFormatter();
-			FileStream saveFile = File.Open(_saveFileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-			SerializedMMAchievementManager serializedMMAchievementManager = (SerializedMMAchievementManager)formatter.Deserialize(saveFile);
-			saveFile.Close();
-
+			SerializedMMAchievementManager serializedMMAchievementManager = (SerializedMMAchievementManager)SaveLoadManager.Load(_saveFileName+_saveFileExtension, _saveFolderName);
 			ExtractSerializedMMAchievementManager(serializedMMAchievementManager);
 		}
 
@@ -179,20 +166,9 @@ namespace MoreMountains.Tools
 		public static void SaveAchievements()
 		{
 			DeterminePath ();
-
-			if (!Directory.Exists(_savePath))
-			{
-				Directory.CreateDirectory(_savePath);
-			}
-			BinaryFormatter formatter = new BinaryFormatter();
-			FileStream saveFile = File.Create(_saveFileName);
-
 			SerializedMMAchievementManager serializedMMAchievementManager = new SerializedMMAchievementManager();
 			FillSerializedMMAchievementManager(serializedMMAchievementManager);
-
-			formatter.Serialize(saveFile, serializedMMAchievementManager);
-
-			saveFile.Close();
+			SaveLoadManager.Save(serializedMMAchievementManager, _saveFileName+_saveFileExtension, _saveFolderName);
 		}
 
 		/// <summary>
@@ -200,22 +176,13 @@ namespace MoreMountains.Tools
 		/// </summary>
 		private static void DeterminePath(string specifiedFileName = "")
 		{
-			if (Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.Android) 
-			{
-				_savePath = Application.persistentDataPath + _saveFolderName;
-			} 
-			else 
-			{
-				_savePath = Application.dataPath + _saveFolderName;
-			}
-
 			string tempFileName = (_listID != "") ? _listID : _defaultFileName;
 			if (specifiedFileName != "")
 			{
 				tempFileName = specifiedFileName;
 			}
 
-			_saveFileName = _savePath + tempFileName + ".achievements.binary";
+			_saveFileName = tempFileName;
 		}
 
 		/// <summary>
@@ -230,7 +197,6 @@ namespace MoreMountains.Tools
 			{
 				SerializedMMAchievement newAchievement = new SerializedMMAchievement (Achievements[i].AchievementID, Achievements[i].UnlockedStatus, Achievements[i].ProgressCurrent);
 				serializedAchievements.Achievements [i] = newAchievement;
-				//MMDebug.DebugLogTime ("Save : " + serializedAchievements.Achievements [i].AchievementID+", status : "+serializedAchievements.Achievements [i].UnlockedStatus);
 			}
 		}
 
@@ -240,6 +206,11 @@ namespace MoreMountains.Tools
 		/// <param name="serializedAchievements">Serialized achievements.</param>
 		public static void ExtractSerializedMMAchievementManager(SerializedMMAchievementManager serializedAchievements)
 		{
+			if (serializedAchievements == null)
+			{
+				return;
+			}
+
 			for (int i = 0; i < Achievements.Count(); i++)
 			{
 				for (int j=0; j<serializedAchievements.Achievements.Length; j++)
@@ -248,7 +219,6 @@ namespace MoreMountains.Tools
 					{
 						Achievements [i].UnlockedStatus = serializedAchievements.Achievements [j].UnlockedStatus;
 						Achievements [i].ProgressCurrent = serializedAchievements.Achievements [j].ProgressCurrent;
-						//MMDebug.DebugLogTime ("Load : " + serializedAchievements.Achievements [j].AchievementID+", status : "+serializedAchievements.Achievements [j].UnlockedStatus);
 					}
 				}
 			}
