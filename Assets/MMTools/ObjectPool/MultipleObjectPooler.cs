@@ -7,6 +7,9 @@ using System.Collections.Generic;
 namespace MoreMountains.Tools
 {	
 	[Serializable]
+	/// <summary>
+	/// Multiple object pooler object.
+	/// </summary>
 	public class MultipleObjectPoolerObject
 	{
 		public GameObject GameObjectToPool;
@@ -15,6 +18,9 @@ namespace MoreMountains.Tools
 		public bool Enabled = true;
 	}
 
+	/// <summary>
+	/// The various methods you can pull objects from the pool with
+	/// </summary>
 	public enum PoolingMethods { OriginalOrder, OriginalOrderSequential, RandomBetweenObjects, RandomPoolSizeBased }
 
 	/// <summary>
@@ -22,29 +28,37 @@ namespace MoreMountains.Tools
 	/// </summary>
 	public class MultipleObjectPooler : ObjectPooler
 	{
+		/// the list of objects to pool
 		public List<MultipleObjectPoolerObject> Pool;
 		[Information("A MultipleObjectPooler is a reserve of objects, to be used by a Spawner. When asked, it will return an object from the pool (ideally an inactive one) chosen based on the pooling method you've chosen.\n- OriginalOrder will spawn objects in the order you've set them in the inspector (from top to bottom)\n- OriginalOrderSequential will do the same, but will empty each pool before moving to the next object\n- RandomBetweenObjects will pick one object from the pool, at random, but ignoring its pool size, each object has equal chances to get picked\n- PoolSizeBased randomly choses one object from the pool, based on its pool size probability (the larger the pool size, the higher the chances it'll get picked)'...",MoreMountains.Tools.InformationAttribute.InformationType.Info,false)]
+		/// the chosen pooling method
 		public PoolingMethods PoolingMethod = PoolingMethods.RandomPoolSizeBased;
 		[Information("If you set CanPoolSameObjectTwice to false, the Pooler will try to prevent the same object from being pooled twice to avoid repetition. This will only affect random pooling methods, not ordered pooling.",MoreMountains.Tools.InformationAttribute.InformationType.Info,false)]
+		/// whether or not the same object can be pooled twice in a row. If you set CanPoolSameObjectTwice to false, the Pooler will try to prevent the same object from being pooled twice to avoid repetition. This will only affect random pooling methods, not ordered pooling.
 		public bool CanPoolSameObjectTwice=true;
 
-		/// this object is just used to group the pooled objects
-		protected GameObject _waitingPool;
 		/// the actual object pool
 		protected List<GameObject> _pooledGameObjects;
 		protected List<GameObject> _pooledGameObjectsOriginalOrder;
 		protected List<MultipleObjectPoolerObject> _randomizedPool;
 		protected string _lastPooledObjectName;
-
 		protected int _currentIndex=0;
+
+		/// <summary>
+		/// Determines the name of the object pool.
+		/// </summary>
+		/// <returns>The object pool name.</returns>
+		protected override string DetermineObjectPoolName()
+		{
+			return ("[MultipleObjectPooler] " + this.name);	
+		}
 
 		/// <summary>
 		/// Fills the object pool with the amount of objects you specified in the inspector.
 		/// </summary>
 		protected override void FillObjectPool()
 		{
-			// we create a container that will hold all the instances we create
-			_waitingPool = new GameObject("[MultipleObjectPooler] " + this.name);
+			CreateWaitingPool ();
 			// we initialize the pool
 			_pooledGameObjects = new List<GameObject>();
 			// we create a randomized pool for picking purposes

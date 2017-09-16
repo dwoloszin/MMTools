@@ -25,6 +25,9 @@ namespace MoreMountains.Tools
 			gameObject.SetActive(false);
 		}
 
+		/// <summary>
+		/// Called every frame
+		/// </summary>
 		protected virtual void Update()
 		{
 
@@ -50,6 +53,9 @@ namespace MoreMountains.Tools
 			CancelInvoke();
 		}
 
+		/// <summary>
+		/// Triggers the on spawn complete event
+		/// </summary>
 		public void TriggerOnSpawnComplete()
 		{
 			if(OnSpawnComplete != null)

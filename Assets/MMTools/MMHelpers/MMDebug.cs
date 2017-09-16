@@ -131,7 +131,7 @@ namespace MoreMountains.Tools
 		/// <param name="origin">Origin.</param>
 		/// <param name="direction">Direction.</param>
 		/// <param name="color">Color.</param>
-	    public static void GizmosDrawArrow(Vector3 origin, Vector3 direction, Color color)
+		public static void DrawGizmoArrow(Vector3 origin, Vector3 direction, Color color)
 	    {
 			float arrowHeadLength = 3.00f;
 			float arrowHeadAngle = 25.0f;
@@ -158,6 +158,45 @@ namespace MoreMountains.Tools
 			DrawArrowEnd(false,origin,direction,color,arrowHeadLength,arrowHeadAngle);
 	    }
 
+		/// <summary>
+		/// Draws a debug arrow going from the origin position and along the direction Vector3
+		/// </summary>
+		/// <param name="origin">Origin.</param>
+		/// <param name="direction">Direction.</param>
+		/// <param name="color">Color.</param>
+		/// <param name="arrowLength">Arrow length.</param>
+		/// <param name="arrowHeadLength">Arrow head length.</param>
+		/// <param name="arrowHeadAngle">Arrow head angle.</param>
+		public static void DebugDrawArrow(Vector3 origin, Vector3 direction, Color color, float arrowLength, float arrowHeadLength = 0.20f, float arrowHeadAngle = 35.0f)
+		{
+			Debug.DrawRay(origin, direction * arrowLength, color);
+
+			DrawArrowEnd(false,origin,direction * arrowLength,color,arrowHeadLength,arrowHeadAngle);
+		}
+
+		/// <summary>
+		/// Draws a debug cross of the specified size and color at the specified point
+		/// </summary>
+		/// <param name="spot">Spot.</param>
+		/// <param name="crossSize">Cross size.</param>
+		/// <param name="color">Color.</param>
+		public static void DebugDrawCross (Vector3 spot, float crossSize, Color color)
+		{
+			Vector3 tempOrigin = Vector3.zero;
+			Vector3 tempDirection = Vector3.zero;
+
+			tempOrigin.x = spot.x - crossSize / 2;
+			tempOrigin.y = spot.y - crossSize / 2;
+			tempDirection.x = 1; 
+			tempDirection.y = 1;
+			Debug.DrawRay (tempOrigin, tempDirection * crossSize, color);
+
+			tempOrigin.x = spot.x - crossSize / 2;
+			tempOrigin.y = spot.y + crossSize / 2;
+			tempDirection.x = 1; 
+			tempDirection.y = -1;
+			Debug.DrawRay (tempOrigin, tempDirection * crossSize, color);
+		}
 
 		private static void DrawArrowEnd (bool drawGizmos, Vector3 arrowEndPosition, Vector3 direction, Color color, float arrowHeadLength = 0.25f, float arrowHeadAngle = 40.0f)
 	    {

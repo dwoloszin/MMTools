@@ -1,4 +1,4 @@
-﻿#define EVENTROUTER_THROWEXCEPTIONS 
+﻿//#define EVENTROUTER_THROWEXCEPTIONS 
 #if EVENTROUTER_THROWEXCEPTIONS
 //#define EVENTROUTER_REQUIRELISTENER // Uncomment this if you want listeners to be required for sending events.
 #endif
@@ -111,21 +111,27 @@ namespace MoreMountains.Tools
 	        }
 
 			List<MMEventListenerBase> subscriberList = _subscribersList[eventType];
-	        bool listenerFound = false;
+	        bool listenerFound;
+			listenerFound = false;
 
-			foreach(MMEventListenerBase subscriber in subscriberList )
-	        {
-	            if( subscriber == listener )
-	            {
-	                subscriberList.Remove( subscriber );
-	                listenerFound = true;
+			if (listenerFound)
+			{
+				
+			}
 
-	                if( subscriberList.Count == 0 )
-	                    _subscribersList.Remove( eventType );
+			for (int i = 0; i<subscriberList.Count; i++)
+			{
+				if( subscriberList[i] == listener )
+				{
+					subscriberList.Remove( subscriberList[i] );
+					listenerFound = true;
 
-	                return;
-	            }
-	        }
+					if( subscriberList.Count == 0 )
+						_subscribersList.Remove( eventType );
+
+					return;
+				}
+			}
 
 			#if EVENTROUTER_THROWEXCEPTIONS
 		        if( !listenerFound )
@@ -149,11 +155,11 @@ namespace MoreMountains.Tools
 			#else
 			                return;
 			#endif
-
-	        foreach( MMEventListenerBase b in list )
-	        {
-	            ( b as MMEventListener<MMEvent> ).OnMMEvent( newEvent );
-	        }
+			
+			for (int i=0; i<list.Count; i++)
+			{
+				( list[i] as MMEventListener<MMEvent> ).OnMMEvent( newEvent );
+			}
 	    }
 
 	    /// <summary>
@@ -170,14 +176,14 @@ namespace MoreMountains.Tools
 
 	        bool exists = false;
 
-			foreach( MMEventListenerBase subscription in receivers )
-	        {
-	            if( subscription == receiver )
-	            {
-	                exists = true;
-	                break;
-	            }
-	        }
+			for (int i=0; i<receivers.Count; i++)
+			{
+				if( receivers[i] == receiver )
+				{
+					exists = true;
+					break;
+				}
+			}
 
 	        return exists;
 	    }

@@ -2,6 +2,9 @@
 using System.Collections;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+#if UNITY_EDITOR
+	using UnityEditor;
+#endif
 
 namespace MoreMountains.Tools
 {	
@@ -28,7 +31,7 @@ namespace MoreMountains.Tools
 			} 
 			else 
 			{
-				savePath = Application.dataPath + _baseFolderName;
+				savePath = Application.persistentDataPath + _baseFolderName;
 			}
 			savePath = savePath + folderName + "/";
 			return savePath;
@@ -101,6 +104,14 @@ namespace MoreMountains.Tools
 			string savePath = DetermineSavePath(folderName);
 			string saveFileName = DetermineSaveFileName(fileName);
 			File.Delete(savePath+saveFileName);
+		}
+
+		public static void DeleteSaveFolder(string folderName = _defaultFolderName)
+		{
+			#if UNITY_EDITOR
+				string savePath = DetermineSavePath(folderName);
+				FileUtil.DeleteFileOrDirectory(savePath);
+			#endif
 		}
 	}
 }

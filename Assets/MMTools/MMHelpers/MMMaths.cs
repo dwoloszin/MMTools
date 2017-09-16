@@ -117,6 +117,23 @@ namespace MoreMountains.Tools
 		 }
 
 		/// <summary>
+		/// Rotates a vector2 by the angle (in degrees) specified and returns it
+		/// </summary>
+		/// <returns>The rotated Vector2.</returns>
+		/// <param name="vector">The vector to rotate.</param>
+		/// <param name="angle">Degrees.</param>
+		public static Vector2 RotateVector2(Vector2 vector, float angle) {
+			float sinus = Mathf.Sin(angle * Mathf.Deg2Rad);
+			float cosinus = Mathf.Cos(angle * Mathf.Deg2Rad);
+
+			float oldX = vector.x;
+			float oldY = vector.y;
+			vector.x = (cosinus * oldX) - (sinus * oldY);
+			vector.y = (sinus * oldX) + (cosinus * oldY);
+			return vector;
+		}
+
+		/// <summary>
 		/// Computes and returns the angle between two vectors, on a 360° scale
 		/// </summary>
 		/// <returns>The <see cref="System.Single"/>.</returns>
@@ -133,6 +150,39 @@ namespace MoreMountains.Tools
 			}
 
 			return angle;
+		}
+
+		/// <summary>
+		/// Returns the distance between a point and a line.
+		/// </summary>
+		/// <returns>The between point and line.</returns>
+		/// <param name="point">Point.</param>
+		/// <param name="lineStart">Line start.</param>
+		/// <param name="lineEnd">Line end.</param>
+		public static float DistanceBetweenPointAndLine(Vector3 point, Vector3 lineStart, Vector3 lineEnd)
+		{
+			return Vector3.Magnitude(ProjectPointOnLine(point, lineStart, lineEnd) - point);
+		}
+
+		/// <summary>
+		/// Projects a point on a line (perpendicularly) and returns the projected point.
+		/// </summary>
+		/// <returns>The point on line.</returns>
+		/// <param name="point">Point.</param>
+		/// <param name="lineStart">Line start.</param>
+		/// <param name="lineEnd">Line end.</param>
+		public static Vector3 ProjectPointOnLine(Vector3 point, Vector3 lineStart, Vector3 lineEnd)
+		{
+			Vector3 rhs = point - lineStart;
+			Vector3 vector2 = lineEnd - lineStart;
+			float magnitude = vector2.magnitude;
+			Vector3 lhs = vector2;
+			if (magnitude > 1E-06f)
+			{
+				lhs = (Vector3)(lhs / magnitude);
+			}
+			float num2 = Mathf.Clamp(Vector3.Dot(lhs, rhs), 0f, magnitude);
+			return (lineStart + ((Vector3)(lhs * num2)));
 		}
 
 		/// <summary>

@@ -11,10 +11,16 @@ namespace MoreMountains.Tools
 	/// </summary>
 	public class ObjectPooler : MonoBehaviour
 	{
-	    public static ObjectPooler Instance;
+		/// singleton pattern
+		public static ObjectPooler Instance;
+		/// if this is true, the pool will try not to create a new waiting pool if it finds one with the same name.
+		public bool MutualizeWaitingPools = false;
+
+		/// this object is just used to group the pooled objects
+		protected GameObject _waitingPool;
 
 		/// <summary>
-		/// Singleton
+		/// On awake we fill our object pool
 		/// </summary>
 	    protected virtual void Awake()
 	    {
@@ -22,13 +28,39 @@ namespace MoreMountains.Tools
 			FillObjectPool();
 	    }
 
-	    /// <summary>
-	    /// On start, we fill the pool with the specified gameobjects
-	    /// </summary>
-	    protected virtual void Start()
-	    {
-			
-	    }
+		/// <summary>
+		/// Creates the waiting pool or tries to reuse one if there's already one available
+		/// </summary>
+		protected virtual void CreateWaitingPool()
+		{
+			if (!MutualizeWaitingPools)
+			{
+				// we create a container that will hold all the instances we create
+				_waitingPool = new GameObject(DetermineObjectPoolName());
+				return;
+			}
+			else
+			{
+				GameObject waitingPool = GameObject.Find (DetermineObjectPoolName ());
+				if (waitingPool != null)
+				{
+					_waitingPool = waitingPool;
+				}
+				else
+				{
+					_waitingPool = new GameObject(DetermineObjectPoolName());
+				}
+			}
+		}
+
+		/// <summary>
+		/// Determines the name of the object pool.
+		/// </summary>
+		/// <returns>The object pool name.</returns>
+		protected virtual string DetermineObjectPoolName()
+		{
+			return ("[ObjectPooler] " + this.name);	
+		}
 
 		/// <summary>
 		/// Implement this method to fill the pool with objects

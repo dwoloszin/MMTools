@@ -14,18 +14,15 @@ namespace MoreMountains.Tools
 	    /// if true, the pool will automatically add objects to the itself if needed
 		public bool PoolCanExpand = true;
 
-	    /// this object is just used to group the pooled objects
-	    protected GameObject _waitingPool;
 	    /// the actual object pool
 		protected List<GameObject> _pooledGameObjects;
-	    
+
 	    /// <summary>
 	    /// Fills the object pool with the gameobject type you've specified in the inspector
 	    /// </summary>
 	    protected override void FillObjectPool()
 	    {
-	        // we create a container that will hold all the instances we create
-	        _waitingPool = new GameObject("[SimpleObjectPooler] " + this.name);
+			CreateWaitingPool ();
 
 			// we initialize the list we'll use to 
 			_pooledGameObjects = new List<GameObject>();
@@ -36,6 +33,15 @@ namespace MoreMountains.Tools
 	            AddOneObjectToThePool ();
 	        }
 	    }
+
+		/// <summary>
+		/// Determines the name of the object pool.
+		/// </summary>
+		/// <returns>The object pool name.</returns>
+		protected override string DetermineObjectPoolName()
+		{
+			return ("[SimpleObjectPooler] " + this.name);	
+		}
 	    	
 	    /// <summary>
 	    /// This method returns one inactive object from the pool
