@@ -123,6 +123,10 @@ namespace MoreMountains.Tools
 		/// <param name="vector">The vector to rotate.</param>
 		/// <param name="angle">Degrees.</param>
 		public static Vector2 RotateVector2(Vector2 vector, float angle) {
+			if (angle == 0)
+			{
+				return vector;
+			}
 			float sinus = Mathf.Sin(angle * Mathf.Deg2Rad);
 			float cosinus = Mathf.Cos(angle * Mathf.Deg2Rad);
 

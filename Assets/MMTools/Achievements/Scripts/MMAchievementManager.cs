@@ -13,7 +13,9 @@ namespace MoreMountains.Tools
 	/// </summary>
 	public static class MMAchievementManager
 	{
-		private static List<MMAchievement> Achievements;
+		public static List<MMAchievement> AchievementsList { get { return _achievements; }}
+
+		private static List<MMAchievement> _achievements;
 		private static MMAchievement _achievement = null;
 
 		private const string _defaultFileName = "Achievements";
@@ -28,7 +30,7 @@ namespace MoreMountains.Tools
 		/// </summary>
 		public static void LoadAchievementList()
 		{
-			Achievements = new List<MMAchievement> ();
+			_achievements = new List<MMAchievement> ();
 
 			// the Achievement List scriptable object must be in a Resources folder inside your project, like so : Resources/Achievements/PUT_SCRIPTABLE_OBJECT_HERE
 			MMAchievementList achievementList = (MMAchievementList) Resources.Load("Achievements/AchievementList");
@@ -43,7 +45,7 @@ namespace MoreMountains.Tools
 
 			foreach (MMAchievement achievement in achievementList.Achievements)
 			{
-				Achievements.Add (achievement.Copy());
+				_achievements.Add (achievement.Copy());
 			}
 		}
 
@@ -108,11 +110,11 @@ namespace MoreMountains.Tools
 		/// <param name="searchedID">Searched I.</param>
 		private static MMAchievement AchievementManagerContains(string searchedID)
 		{
-			if (Achievements.Count == 0)
+			if (_achievements.Count == 0)
 			{
 				return null;
 			}
-			foreach(MMAchievement achievement in Achievements)
+			foreach(MMAchievement achievement in _achievements)
 			{
 				if (achievement.AchievementID == searchedID)
 				{
@@ -130,9 +132,9 @@ namespace MoreMountains.Tools
 		/// <param name="listID">The ID of the achievement list to reset.</param>
 		public static void ResetAchievements(string listID)
 		{
-			if (Achievements != null)
+			if (_achievements != null)
 			{
-				foreach(MMAchievement achievement in Achievements)
+				foreach(MMAchievement achievement in _achievements)
 				{
 					achievement.ProgressCurrent = 0;
 					achievement.UnlockedStatus = false;
@@ -191,11 +193,11 @@ namespace MoreMountains.Tools
 		/// <param name="serializedInventory">Serialized inventory.</param>
 		public static void FillSerializedMMAchievementManager(SerializedMMAchievementManager serializedAchievements)
 		{
-			serializedAchievements.Achievements = new SerializedMMAchievement[Achievements.Count];
+			serializedAchievements.Achievements = new SerializedMMAchievement[_achievements.Count];
 
-			for (int i = 0; i < Achievements.Count(); i++)
+			for (int i = 0; i < _achievements.Count(); i++)
 			{
-				SerializedMMAchievement newAchievement = new SerializedMMAchievement (Achievements[i].AchievementID, Achievements[i].UnlockedStatus, Achievements[i].ProgressCurrent);
+				SerializedMMAchievement newAchievement = new SerializedMMAchievement (_achievements[i].AchievementID, _achievements[i].UnlockedStatus, _achievements[i].ProgressCurrent);
 				serializedAchievements.Achievements [i] = newAchievement;
 			}
 		}
@@ -211,14 +213,14 @@ namespace MoreMountains.Tools
 				return;
 			}
 
-			for (int i = 0; i < Achievements.Count(); i++)
+			for (int i = 0; i < _achievements.Count(); i++)
 			{
 				for (int j=0; j<serializedAchievements.Achievements.Length; j++)
 				{
-					if (Achievements[i].AchievementID == serializedAchievements.Achievements[j].AchievementID)
+					if (_achievements[i].AchievementID == serializedAchievements.Achievements[j].AchievementID)
 					{
-						Achievements [i].UnlockedStatus = serializedAchievements.Achievements [j].UnlockedStatus;
-						Achievements [i].ProgressCurrent = serializedAchievements.Achievements [j].ProgressCurrent;
+						_achievements [i].UnlockedStatus = serializedAchievements.Achievements [j].UnlockedStatus;
+						_achievements [i].ProgressCurrent = serializedAchievements.Achievements [j].ProgressCurrent;
 					}
 				}
 			}

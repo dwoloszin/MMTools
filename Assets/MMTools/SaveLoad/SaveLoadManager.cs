@@ -33,6 +33,10 @@ namespace MoreMountains.Tools
 			{
 				savePath = Application.persistentDataPath + _baseFolderName;
 			}
+			#if UNITY_EDITOR
+			savePath = Application.dataPath + _baseFolderName;
+			#endif
+
 			savePath = savePath + folderName + "/";
 			return savePath;
 		}
