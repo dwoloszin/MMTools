@@ -61,6 +61,9 @@ namespace MoreMountains.Tools
 		/// the object's maximum scale
 		public Vector3 ScaleAmplitudeMax = Vector3.one;
 
+		[Header("Startup")]
+		public bool StartWigglingAutomatically = true;
+
 		protected Vector3 _startPosition;
 		protected Quaternion _startRotation;
 		protected Vector3 _startScale;
@@ -93,6 +96,8 @@ namespace MoreMountains.Tools
 		protected Quaternion _rotationPingPongStart;
 		protected Quaternion _rotationPingPongEnd;
 
+		protected bool _wiggling = true;
+
 		/// <summary>
 		/// On Start() we trigger the initialization
 		/// </summary>
@@ -114,6 +119,16 @@ namespace MoreMountains.Tools
 			_rotationStartValue = this.transform.rotation;
 			_scaleStartValue = this.transform.localScale;
 
+			if (!StartWigglingAutomatically)
+			{
+				_wiggling = false;
+			}
+
+			StartWiggleCoroutines();
+		}
+
+		protected virtual void StartWiggleCoroutines()
+		{
 			if (PositionMode == WiggleTypes.Random)
 			{
 				StartCoroutine(RandomizePosition ());
@@ -158,7 +173,7 @@ namespace MoreMountains.Tools
 		{			
 			_randomPositionFrequency = UnityEngine.Random.Range(PositionFrequencyMin,PositionFrequencyMax);
 			float i = _randomPositionFrequency;
-			while(i > 0f)
+			while((i > 0f) && _wiggling)
 			{
 				_positionT = (Time.time - _positionTimer) / _randomPositionFrequency;
 				_positionT = SmoothPositionPingPong ? Mathf.SmoothStep(0f, 1f, _positionT) : _positionT;
@@ -193,7 +208,7 @@ namespace MoreMountains.Tools
 			_rotationPingPongEnd = Quaternion.Euler(endRotation);
 
 			float i = _randomRotationFrequency;
-			while(i > 0f)
+			while ((i > 0f) && _wiggling)
 			{
 				_rotationT = (Time.time - _rotationTimer) / _randomRotationFrequency;
 				_rotationT = SmoothRotationPingPong ? Mathf.SmoothStep(0f, 1f, _rotationT) : _rotationT;
@@ -224,7 +239,7 @@ namespace MoreMountains.Tools
 		{			
 			_randomScaleFrequency = UnityEngine.Random.Range(ScaleFrequencyMin,ScaleFrequencyMax);
 			float i = _randomScaleFrequency;
-			while(i > 0f)
+			while ((i > 0f) && _wiggling)
 			{
 				_scaleT = (Time.time - _scaleTimer) / _randomScaleFrequency;
 				_scaleT = SmoothScalePingPong ? Mathf.SmoothStep(0f, 1f, _scaleT) : _scaleT;
@@ -258,6 +273,11 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void UpdatePosition()
 		{
+			if (!_wiggling)
+			{
+				return;
+			}
+
 			if (PositionMode == WiggleTypes.Random)
 			{
 				if (_randomPositionFrequency > 0)
