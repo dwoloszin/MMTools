@@ -14,6 +14,6 @@ namespace MoreMountains.Tools
 		public Image Icon;
 		public Text Title;
 		public Text Description;
-		public ProgressBar ProgressBarDisplay;	
+		public MMProgressBar ProgressBarDisplay;	
 	}
 }
