@@ -15,9 +15,11 @@ namespace MoreMountains.Tools
 		public static MMObjectPooler Instance;
 		/// if this is true, the pool will try not to create a new waiting pool if it finds one with the same name.
 		public bool MutualizeWaitingPools = false;
+		/// if this is true, all waiting and active objects will be regrouped under an empty game object. Otherwise they'll just be at top level in the hierarchy
+		public bool NestWaitingPool = true;
 
 		/// this object is just used to group the pooled objects
-		protected GameObject _waitingPool;
+		protected GameObject _waitingPool = null;
 
 		/// <summary>
 		/// On awake we fill our object pool
@@ -33,6 +35,11 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void CreateWaitingPool()
 		{
+			if (!NestWaitingPool)
+			{
+				return;
+			}
+			
 			if (!MutualizeWaitingPools)
 			{
 				// we create a container that will hold all the instances we create

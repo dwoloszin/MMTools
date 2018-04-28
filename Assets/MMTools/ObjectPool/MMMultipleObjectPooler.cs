@@ -158,7 +158,10 @@ namespace MoreMountains.Tools
 		{
 			GameObject newGameObject = (GameObject)Instantiate(typeOfObject);
 			newGameObject.gameObject.SetActive(false);
-			newGameObject.transform.SetParent(_waitingPool.transform);
+			if (NestWaitingPool)
+			{
+				newGameObject.transform.SetParent(_waitingPool.transform);	
+			}
 			newGameObject.name=typeOfObject.name;
 			_pooledGameObjects.Add(newGameObject);	
 			return newGameObject;
