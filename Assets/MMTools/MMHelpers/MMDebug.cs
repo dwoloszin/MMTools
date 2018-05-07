@@ -35,7 +35,17 @@ namespace MoreMountains.Tools
 			return Physics2D.Raycast(rayOriginPoint,rayDirection,rayDistance,mask);		
 		}
 
-
+		/// <summary>
+		/// Draws a debug ray without allocating memory
+		/// </summary>
+		/// <returns>The ray cast non alloc.</returns>
+		/// <param name="array">Array.</param>
+		/// <param name="rayOriginPoint">Ray origin point.</param>
+		/// <param name="rayDirection">Ray direction.</param>
+		/// <param name="rayDistance">Ray distance.</param>
+		/// <param name="mask">Mask.</param>
+		/// <param name="color">Color.</param>
+		/// <param name="drawGizmo">If set to <c>true</c> draw gizmo.</param>
 		public static RaycastHit2D MonoRayCastNonAlloc(RaycastHit2D[] array, Vector2 rayOriginPoint, Vector2 rayDirection, float rayDistance, LayerMask mask, Color color,bool drawGizmo=false)
 		{	
 			if (drawGizmo) 
@@ -198,6 +208,15 @@ namespace MoreMountains.Tools
 			Debug.DrawRay (tempOrigin, tempDirection * crossSize, color);
 		}
 
+		/// <summary>
+		/// Draws the arrow end for DebugDrawArrow
+		/// </summary>
+		/// <param name="drawGizmos">If set to <c>true</c> draw gizmos.</param>
+		/// <param name="arrowEndPosition">Arrow end position.</param>
+		/// <param name="direction">Direction.</param>
+		/// <param name="color">Color.</param>
+		/// <param name="arrowHeadLength">Arrow head length.</param>
+		/// <param name="arrowHeadAngle">Arrow head angle.</param>
 		private static void DrawArrowEnd (bool drawGizmos, Vector3 arrowEndPosition, Vector3 direction, Color color, float arrowHeadLength = 0.25f, float arrowHeadAngle = 40.0f)
 	    {
 			if (direction == Vector3.zero)
@@ -277,6 +296,40 @@ namespace MoreMountains.Tools
 			Gizmos.DrawWireSphere(position,size);
 		}
 
+		/// <summary>
+		/// Draws a cube at the specified position, and of the specified color and size
+		/// </summary>
+		/// <param name="position">Position.</param>
+		/// <param name="color">Color.</param>
+		/// <param name="size">Size.</param>
+		public static void DrawCube (Vector3 position, Color color, Vector3 size)
+		{
+			Vector3 halfSize = size / 2f; 
+
+			Vector3[] points = new Vector3 []
+			{
+				position + new Vector3(halfSize.x,halfSize.y,halfSize.z),
+				position + new Vector3(-halfSize.x,halfSize.y,halfSize.z),
+				position + new Vector3(-halfSize.x,-halfSize.y,halfSize.z),
+				position + new Vector3(halfSize.x,-halfSize.y,halfSize.z),			
+				position + new Vector3(halfSize.x,halfSize.y,-halfSize.z),
+				position + new Vector3(-halfSize.x,halfSize.y,-halfSize.z),
+				position + new Vector3(-halfSize.x,-halfSize.y,-halfSize.z),
+				position + new Vector3(halfSize.x,-halfSize.y,-halfSize.z),
+			};
+
+			Debug.DrawLine (points[0], points[1], color ); 
+			Debug.DrawLine (points[1], points[2], color ); 
+			Debug.DrawLine (points[2], points[3], color ); 
+			Debug.DrawLine (points[3], points[0], color ); 
+		}
+
+		/// <summary>
+		/// Draws a gizmo rectangle
+		/// </summary>
+		/// <param name="center">Center.</param>
+		/// <param name="size">Size.</param>
+		/// <param name="color">Color.</param>
 		public static void DrawGizmoRectangle(Vector2 center, Vector2 size, Color color)
 		{
 			Gizmos.color = color;
@@ -292,6 +345,77 @@ namespace MoreMountains.Tools
 			Gizmos.DrawLine(v3BottomLeft,v3TopLeft);
 		}
 
+		/// <summary>
+		/// Draws a rectangle based on a Rect and color
+		/// </summary>
+		/// <param name="rectangle">Rectangle.</param>
+		/// <param name="color">Color.</param>
+		public static void DrawRectangle (Rect rectangle, Color color)
+		{
+			Vector3 pos = new Vector3( rectangle.x + rectangle.width/2, rectangle.y + rectangle.height/2, 0.0f );
+			Vector3 scale = new Vector3 (rectangle.width, rectangle.height, 0.0f );
 
+			MMDebug.DrawRectangle (pos, color, scale); 
+		}	
+
+		/// <summary>
+		/// Draws a rectangle of the specified color and size at the specified position
+		/// </summary>
+		/// <param name="position">Position.</param>
+		/// <param name="color">Color.</param>
+		/// <param name="size">Size.</param>
+		public static void DrawRectangle  (Vector3 position, Color color, Vector3 size)
+		{		
+			Vector3 halfSize = size / 2f; 
+
+			Vector3[] points = new Vector3 []
+			{
+				position + new Vector3(halfSize.x,halfSize.y,halfSize.z),
+				position + new Vector3(-halfSize.x,halfSize.y,halfSize.z),
+				position + new Vector3(-halfSize.x,-halfSize.y,halfSize.z),
+				position + new Vector3(halfSize.x,-halfSize.y,halfSize.z),	
+			};
+
+			Debug.DrawLine (points[0], points[1], color ); 
+			Debug.DrawLine (points[1], points[2], color ); 
+			Debug.DrawLine (points[2], points[3], color ); 
+			Debug.DrawLine (points[3], points[0], color ); 
+		}
+
+		/// <summary>
+		/// Draws a point of the specified color and size at the specified position
+		/// </summary>
+		/// <param name="pos">Position.</param>
+		/// <param name="col">Col.</param>
+		/// <param name="scale">Scale.</param>
+		public static void DrawPoint (Vector3 position, Color color, float size)
+		{
+			Vector3[] points = new Vector3[] 
+			{
+				position + (Vector3.up * size), 
+				position - (Vector3.up * size), 
+				position + (Vector3.right * size), 
+				position - (Vector3.right * size), 
+				position + (Vector3.forward * size), 
+				position - (Vector3.forward * size)
+			}; 		
+
+			Debug.DrawLine (points[0], points[1], color ); 
+			Debug.DrawLine (points[2], points[3], color ); 
+			Debug.DrawLine (points[4], points[5], color ); 
+			Debug.DrawLine (points[0], points[2], color ); 
+			Debug.DrawLine (points[0], points[3], color ); 
+			Debug.DrawLine (points[0], points[4], color ); 
+			Debug.DrawLine (points[0], points[5], color ); 
+			Debug.DrawLine (points[1], points[2], color ); 
+			Debug.DrawLine (points[1], points[3], color ); 
+			Debug.DrawLine (points[1], points[4], color ); 
+			Debug.DrawLine (points[1], points[5], color ); 
+			Debug.DrawLine (points[4], points[2], color ); 
+			Debug.DrawLine (points[4], points[3], color ); 
+			Debug.DrawLine (points[5], points[2], color ); 
+			Debug.DrawLine (points[5], points[3], color ); 
+
+		}
 	}
 }
