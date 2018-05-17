@@ -30,7 +30,7 @@ namespace MoreMountains.Tools
 	            distance = Vector3.Distance(movingObject.transform.position, pointB);
 				t += Time.deltaTime / time; 
 				movingObject.transform.position = Vector3.Lerp(pointA, pointB, t);
-				yield return 0;
+				yield return null;
 			}
 	        yield break;
 		}
