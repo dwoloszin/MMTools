@@ -13,7 +13,8 @@ namespace MoreMountains.Tools
 	{
 		Set,
 		For,
-		Reset
+		Reset,
+        Unfreeze
 	}
 
 	/// <summary>
@@ -25,6 +26,7 @@ namespace MoreMountains.Tools
 		public float Duration;
 		public bool Lerp;
 		public float LerpSpeed;
+        public bool Infinite;
 	}
 
 	/// <summary>
@@ -35,13 +37,14 @@ namespace MoreMountains.Tools
 		public MMTimeScaleMethods TimeScaleMethod;
 		public TimeScaleProperties TimeScaleProperty;
 
-		public MMTimeScaleEvent(MMTimeScaleMethods timeScaleMethod, float timeScale, float duration, bool lerp, float lerpSpeed)
+		public MMTimeScaleEvent(MMTimeScaleMethods timeScaleMethod, float timeScale, float duration, bool lerp, float lerpSpeed, bool infinite)
 		{
 			TimeScaleMethod = timeScaleMethod;
 			TimeScaleProperty.TimeScale = timeScale;
 			TimeScaleProperty.Duration = duration;
 			TimeScaleProperty.Lerp = lerp;
 			TimeScaleProperty.LerpSpeed = lerpSpeed;
+            TimeScaleProperty.Infinite = infinite;
 		}
 	}
 
@@ -51,11 +54,9 @@ namespace MoreMountains.Tools
 	public struct MMFreezeFrameEvent
 	{
 		public float FreezeDuration;
-		public float NormalTimeScale;
-		public MMFreezeFrameEvent(float duration, float normalTimeScale)
+		public MMFreezeFrameEvent(float duration)
 		{
 			FreezeDuration = duration;
-			NormalTimeScale = normalTimeScale;
 		}
 	}
 
@@ -93,7 +94,7 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void TestButtonToSlowDownTime()
 		{
-			MMEventManager.TriggerEvent(new MMTimeScaleEvent(MMTimeScaleMethods.For, 0.5f, 3f, true, 1f));
+			MMEventManager.TriggerEvent(new MMTimeScaleEvent(MMTimeScaleMethods.For, 0.5f, 3f, true, 1f, false));
 		}
 
 		/// <summary>
@@ -109,9 +110,10 @@ namespace MoreMountains.Tools
 		/// On Update, applies the timescale and resets it if needed
 		/// </summary>
 		protected virtual void Update()
-		{
-			// if we have things in our stack, we handle them, otherwise we reset to the normal timescale
-			if (_timeScaleProperties.Count > 0)
+		{          
+
+            // if we have things in our stack, we handle them, otherwise we reset to the normal timescale
+            if (_timeScaleProperties.Count > 0)
 			{
 				_currentProperty = _timeScaleProperties.Peek();
 
@@ -123,7 +125,7 @@ namespace MoreMountains.Tools
 				_timeScaleProperties.Pop();
 				_timeScaleProperties.Push(_currentProperty);
 
-				if (_currentProperty.Duration <= 0f)
+				if (_currentProperty.Duration <= 0f && !_currentProperty.Infinite)
 				{
 					Unfreeze();
 				}
@@ -177,11 +179,15 @@ namespace MoreMountains.Tools
 		/// Resets the time scale to the last saved time scale.
 		/// </summary>
 		protected virtual void Unfreeze()
-		{
-			if (_timeScaleProperties.Count > 0)
+        {
+            if (_timeScaleProperties.Count > 0)
 			{
-				_timeScaleProperties.Pop();
+                _timeScaleProperties.Pop();
 			}
+            else
+            {
+                ResetTimeScale();
+            }
 		}
 
 		/// <summary>
@@ -212,6 +218,10 @@ namespace MoreMountains.Tools
 				case MMTimeScaleMethods.For:
 					SetTimeScale (timeScaleEvent.TimeScaleProperty);
 					break;
+
+                case MMTimeScaleMethods.Unfreeze:
+                    Unfreeze();
+                    break;
 			}
 		}
 

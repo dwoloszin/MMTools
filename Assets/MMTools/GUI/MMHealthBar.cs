@@ -38,6 +38,8 @@ namespace MoreMountains.Tools
 		public Gradient BorderColor;
 		/// if the healthbar is drawn, the color of its background
 		public Gradient BackgroundColor;
+        /// the name of the sorting layer to put this health bar on
+        public string SortingLayerName = "UI";
 		/// the delay to apply to the delayed bar if drawn
 		public float Delay = 0.5f;
 		/// whether or not the front bar should lerp
@@ -53,7 +55,9 @@ namespace MoreMountains.Tools
 		/// the duration of the bump animation
 		public float BumpDuration = 0.2f;
 		/// the animation curve to map the bump animation on
-		public AnimationCurve BumpAnimationCurve;
+		public AnimationCurve BumpAnimationCurve = AnimationCurve.Constant(0,1,1);
+        /// the mode the bar should follow the target in
+        public MMFollowTarget.Modes FollowTargetMode = MMFollowTarget.Modes.LateUpdate;
 
 		[Header("Death")]
 		/// a gameobject (usually a particle system) to instantiate when the healthbar reaches zero
@@ -62,7 +66,7 @@ namespace MoreMountains.Tools
 		[Header("Offset")]
 		[Information("Set the offset (in world units), relative to the object's center, to which the health bar will be displayed.",MoreMountains.Tools.InformationAttribute.InformationType.Info,false)]
 		/// the offset to apply to the healthbar compared to the object's center
-		public Vector3 HealthBarOffset;
+		public Vector3 HealthBarOffset = new Vector3(0f,1f,0f);
 
 		[Header("Display")]
 		[Information("Here you can define whether or not the healthbar should always be visible. If not, you can set here how long after a hit it'll remain visible.",MoreMountains.Tools.InformationAttribute.InformationType.Info,false)]
@@ -76,7 +80,7 @@ namespace MoreMountains.Tools
 		public float HideBarAtZeroDelay = 1f;
 
 		protected MMProgressBar _progressBar;
-		protected MMFollowTransform _followTransform;
+		protected MMFollowTarget _followTransform;
 		protected float _lastShowTimestamp = 0f;
 		protected bool _showBar = false;
 		protected Image _backgroundImage = null;
@@ -129,14 +133,20 @@ namespace MoreMountains.Tools
 
 			_progressBar = newGameObject.AddComponent<MMProgressBar>();
 
-			_followTransform = newGameObject.AddComponent<MMFollowTransform>();
-			_followTransform.FollowOffset = HealthBarOffset;
-			_followTransform.FollowTransform = this.transform;
+			_followTransform = newGameObject.AddComponent<MMFollowTarget>();
+			_followTransform.Offset = HealthBarOffset;
+			_followTransform.Target = this.transform;
+            _followTransform.InterpolateMovement = false;
+            _followTransform.UpdateMode = FollowTargetMode;
 
 			Canvas newCanvas = newGameObject.AddComponent<Canvas>();
 			newCanvas.renderMode = RenderMode.WorldSpace;
 			newCanvas.transform.localScale = Vector3.one;
 			newCanvas.GetComponent<RectTransform>().sizeDelta = Size;
+            if (SortingLayerName != "")
+            {
+                newCanvas.sortingLayerName = SortingLayerName;
+            }
 
 			GameObject borderImageGameObject = new GameObject();
 			borderImageGameObject.transform.SetParent(newGameObject.transform);
@@ -205,12 +215,7 @@ namespace MoreMountains.Tools
 			}
 
 			UpdateDrawnColors();
-
-			if (HideBarAtZero && _progressBar.BarProgress <= 0)
-			{
-				StartCoroutine(FinalHideBar());
-			}
-
+            
 			if (AlwaysVisible)	
 			{ 
 				return; 
@@ -239,12 +244,20 @@ namespace MoreMountains.Tools
 			_finalHideStarted = true;
 			if (InstantiatedOnDeath != null)
 			{
-				GameObject death = Instantiate(InstantiatedOnDeath, this.transform.position + HealthBarOffset, this.transform.rotation);
+				Instantiate(InstantiatedOnDeath, this.transform.position + HealthBarOffset, this.transform.rotation);
 			}
-			yield return new WaitForSeconds(HideBarAtZeroDelay);
-
-			_showBar = false;
-			_progressBar.gameObject.SetActive(false);			
+            if (HideBarAtZeroDelay == 0)
+            {
+                _showBar = false;
+                _progressBar.gameObject.SetActive(false);
+                yield return null;
+            }
+            else
+            {
+                yield return new WaitForSeconds(HideBarAtZeroDelay);
+                _showBar = false;
+                _progressBar.gameObject.SetActive(false);
+            }            
 		}
 
 		/// <summary>
@@ -295,7 +308,13 @@ namespace MoreMountains.Tools
 			if (_progressBar != null)
 			{
 				_progressBar.UpdateBar(currentHealth, minHealth, maxHealth)	;
-				if (BumpScaleOnChange)
+
+                if (HideBarAtZero && _progressBar.BarProgress <= 0)
+                {
+                    StartCoroutine(FinalHideBar());
+                }
+
+                if (BumpScaleOnChange)
 				{
 					_progressBar.Bump();
 				}

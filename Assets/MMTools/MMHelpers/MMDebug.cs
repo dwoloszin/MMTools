@@ -284,13 +284,29 @@ namespace MoreMountains.Tools
 			#endif
 		}
 
-		/// <summary>
-		/// Draws a gizmo sphere of the specified size and color at a position
-		/// </summary>
-		/// <param name="position">Position.</param>
-		/// <param name="size">Size.</param>
-		/// <param name="color">Color.</param>
-		public static void DrawGizmoPoint(Vector3 position, float size, Color color)
+        public static void DrawSolidRectangle(Vector3 position, Vector3 size, Color borderColor, Color solidColor)
+        {
+            #if UNITY_EDITOR
+
+            Vector3 halfSize = size / 2f;
+
+            Vector3[] verts = new Vector3[4];
+            verts[0] = new Vector3(halfSize.x, halfSize.y, halfSize.z);
+            verts[1] = new Vector3(-halfSize.x, halfSize.y, halfSize.z);
+            verts[2] = new Vector3(-halfSize.x, -halfSize.y, halfSize.z);
+            verts[3] = new Vector3(halfSize.x, -halfSize.y, halfSize.z);
+            Handles.DrawSolidRectangleWithOutline(verts, solidColor, borderColor);
+            
+            #endif
+        }
+        
+        /// <summary>
+        /// Draws a gizmo sphere of the specified size and color at a position
+        /// </summary>
+        /// <param name="position">Position.</param>
+        /// <param name="size">Size.</param>
+        /// <param name="color">Color.</param>
+        public static void DrawGizmoPoint(Vector3 position, float size, Color color)
 		{
 	    	Gizmos.color = color;
 			Gizmos.DrawWireSphere(position,size);
@@ -381,14 +397,14 @@ namespace MoreMountains.Tools
 			Debug.DrawLine (points[2], points[3], color ); 
 			Debug.DrawLine (points[3], points[0], color ); 
 		}
-
-		/// <summary>
-		/// Draws a point of the specified color and size at the specified position
-		/// </summary>
-		/// <param name="pos">Position.</param>
-		/// <param name="col">Col.</param>
-		/// <param name="scale">Scale.</param>
-		public static void DrawPoint (Vector3 position, Color color, float size)
+        
+        /// <summary>
+        /// Draws a point of the specified color and size at the specified position
+        /// </summary>
+        /// <param name="pos">Position.</param>
+        /// <param name="col">Col.</param>
+        /// <param name="scale">Scale.</param>
+        public static void DrawPoint (Vector3 position, Color color, float size)
 		{
 			Vector3[] points = new Vector3[] 
 			{

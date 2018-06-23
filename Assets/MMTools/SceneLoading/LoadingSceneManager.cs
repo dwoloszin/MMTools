@@ -46,9 +46,9 @@ namespace MoreMountains.Tools
 		/// Call this static method to load a scene from anywhere
 		/// </summary>
 		/// <param name="sceneToLoad">Level name.</param>
-		public static void LoadScene(string sceneToLoad) 
-		{		
-			_sceneToLoad = sceneToLoad;					
+		public static void LoadScene(string sceneToLoad)
+        {
+            _sceneToLoad = sceneToLoad;					
 			Application.backgroundLoadingPriority = ThreadPriority.High;
 			if (LoadingScreenSceneName!=null)
 			{
@@ -60,9 +60,9 @@ namespace MoreMountains.Tools
 		/// Call this static method to load a scene from anywhere
 		/// </summary>
 		/// <param name="sceneToLoad">Level name.</param>
-		public static void LoadScene(string sceneToLoad, string loadingSceneName) 
-		{		
-			_sceneToLoad = sceneToLoad;					
+		public static void LoadScene(string sceneToLoad, string loadingSceneName)
+        {
+            _sceneToLoad = sceneToLoad;					
 			Application.backgroundLoadingPriority = ThreadPriority.High;
 			SceneManager.LoadScene(loadingSceneName);
 		}
@@ -76,7 +76,7 @@ namespace MoreMountains.Tools
 			if (_sceneToLoad != "")
 			{
 				StartCoroutine(LoadAsynchronously());
-			}
+			}        
 		}
 
 		/// <summary>
@@ -84,6 +84,7 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void Update()
 		{
+            Time.timeScale = 1f;
 			LoadingProgressBar.GetComponent<Image>().fillAmount = MMMaths.Approach(LoadingProgressBar.GetComponent<Image>().fillAmount,_fillTarget,Time.deltaTime*ProgressBarSpeed);
 		}
 

@@ -28,13 +28,48 @@ namespace MoreMountains.Tools
 				}
 			}
 			return false;
-		}	
+        }
 
+        /// <summary>
+        /// Returns true if a renderer is visible from a camera
+        /// </summary>
+        /// <param name="renderer"></param>
+        /// <param name="camera"></param>
+        /// <returns></returns>
+        public static bool IsVisibleFrom(this Renderer renderer, Camera camera)
+        {
+            Plane[] frustumPlanes = GeometryUtility.CalculateFrustumPlanes(camera);
+            return GeometryUtility.TestPlanesAABB(frustumPlanes, renderer.bounds);
+        }
+
+        /// <summary>
+        /// Returns true if this rectangle intersects the other specified rectangle
+        /// </summary>
+        /// <param name="thisRectangle"></param>
+        /// <param name="otherRectangle"></param>
+        /// <returns></returns>
+        public static bool Intersects(this Rect thisRectangle, Rect otherRectangle)
+        {
+            return !((thisRectangle.x > otherRectangle.xMax) || (thisRectangle.xMax < otherRectangle.x) || (thisRectangle.y > otherRectangle.yMax) || (thisRectangle.yMax < otherRectangle.y));
+        }
+
+        /// <summary>
+        /// Returns bool if layer is within layermask
+        /// </summary>
+        /// <param name="mask"></param>
+        /// <param name="layer"></param>
+        /// <returns></returns>
         public static bool Contains(this LayerMask mask, int layer) 
         {
              return ((mask.value & (1 << layer)) > 0);
         }
          
+        /// <summary>
+        /// Returns true if gameObject is within layermask
+        /// </summary>
+        /// <param name="mask"></param>
+        /// <param name="gameobject"></param>
+        /// <returns></returns>
 		public static bool Contains(this LayerMask mask, GameObject gameobject) 
         {
              return ((mask.value & (1 << gameobject.layer)) > 0);
@@ -42,6 +77,12 @@ namespace MoreMountains.Tools
 
 		static List<Component> m_ComponentCache = new List<Component>();
 
+        /// <summary>
+        /// Grabs a component without allocating memory uselessly
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="componentType"></param>
+        /// <returns></returns>
 		public static Component GetComponentNoAlloc(this GameObject @this, System.Type componentType) 
 		{ 
 			@this.GetComponents(componentType, m_ComponentCache); 
@@ -50,12 +91,53 @@ namespace MoreMountains.Tools
 			return component; 
 		} 
 
+        /// <summary>
+        /// Grabs a component without allocating memory uselessly
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="this"></param>
+        /// <returns></returns>
 		public static T GetComponentNoAlloc<T>(this GameObject @this) where T : Component
 		{
 			@this.GetComponents(typeof(T), m_ComponentCache);
 			var component = m_ComponentCache.Count > 0 ? m_ComponentCache[0] : null;
 			m_ComponentCache.Clear();
 			return component as T;
-		} 
-	}
+		}
+
+        /// <summary>
+        /// Rotates a vector2 by angleInDegrees
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="angleInDegrees"></param>
+        /// <returns></returns>
+        public static Vector2 Rotate(this Vector2 vector, float angleInDegrees)
+        {
+            float sin = Mathf.Sin(angleInDegrees * Mathf.Deg2Rad);
+            float cos = Mathf.Cos(angleInDegrees * Mathf.Deg2Rad);
+            float tx = vector.x;
+            float ty = vector.y;
+            vector.x = (cos * tx) - (sin * ty);
+            vector.y = (sin * tx) + (cos * ty);
+            return vector;
+        }
+
+
+        /// <summary>
+        /// Normalizes an angle in degrees
+        /// </summary>
+        /// <param name="angleInDegrees"></param>
+        /// <returns></returns>
+        public static float NormalizeAngle(this float angleInDegrees)
+        {
+            angleInDegrees = angleInDegrees % 360f;
+            if (angleInDegrees < 0)
+            {
+                angleInDegrees += 360f;
+            }                
+            return angleInDegrees;
+        }
+
+
+    }
 }

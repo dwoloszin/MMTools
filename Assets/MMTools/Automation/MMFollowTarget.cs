@@ -27,7 +27,7 @@ namespace MoreMountains.Tools
         public float InterpolationSpeed = 10f;
 
         /// the possible update modes
-        public enum Modes { Update, FixedUpdate }
+        public enum Modes { Update, FixedUpdate, LateUpdate }
         [Header("Mode")]
         /// the update at which the movement happens
         public Modes UpdateMode = Modes.Update;
@@ -93,6 +93,17 @@ namespace MoreMountains.Tools
         protected virtual void FixedUpdate()
         {
             if (UpdateMode == Modes.FixedUpdate)
+            {
+                FollowTarget();
+            }
+        }
+
+        /// <summary>
+        /// At late update we follow our target 
+        /// </summary>
+        protected virtual void LateUpdate()
+        {
+            if (UpdateMode == Modes.LateUpdate)
             {
                 FollowTarget();
             }
