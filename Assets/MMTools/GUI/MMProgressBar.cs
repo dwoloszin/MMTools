@@ -11,7 +11,20 @@ namespace MoreMountains.Tools
 	/// </summary>
 	public class MMProgressBar : MonoBehaviour
 	{
-		[Header("Foreground Bar Settings")]
+        public enum FillModes { LocalScale, FillAmount }
+        public enum BarDirections { LeftToRight, RightToLeft, UpToDown, DownToUp }
+
+        [Header("General Settings")]
+        /// the local scale or fillamount value to reach when the bar is empty 
+        public float StartValue = 0f;
+        /// the local scale or fillamount value to reach when the bar is full
+        public float EndValue = 1f;
+        /// the direction this bar moves to
+        public BarDirections BarDirection = BarDirections.LeftToRight;
+        /// the foreground bar's fill mode
+        public FillModes FillMode = FillModes.LocalScale;
+
+        [Header("Foreground Bar Settings")]
 		/// whether or not the foreground bar should lerp
 		public bool LerpForegroundBar = true;
 		/// the speed at which to lerp the foreground bar
@@ -43,25 +56,46 @@ namespace MoreMountains.Tools
 		/// the color to apply to the bar when bumping
 		public Color BumpColor = Color.white;
 		/// the curve to map the bump animation on
-		public AnimationCurve BumpAnimationCurve;
-		/// the current progress of the bar
-		public float BarProgress { get; protected set; }
-		/// whether or not the bar is bumping right now
-		public bool Bumping { get; protected set; }
+		public AnimationCurve BumpAnimationCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
+        /// the curve to map the bump animation color animation on
+        public AnimationCurve BumpColorAnimationCurve = AnimationCurve.Linear(0f, 0f, 1f, 0f);
+        /// whether or not the bar is bumping right now
+        public bool Bumping { get; protected set; }
 
-		protected Vector3 _targetLocalScale = Vector3.one;
+        [Header("Realtime")]
+        /// whether or not this progress bar should update itself every update (if not, you'll have to update it using the UpdateBar method
+        public bool AutoUpdating = false;
+        /// the current progress of the bar
+        [Range(0f,1f)]
+        public float BarProgress;
+
+        [InspectorButton("Bump")]
+        public bool TestBumpButton;
+
+        protected float _targetFill;
+        protected Vector3 _targetLocalScale = Vector3.one;
 		protected float _newPercent;
-		protected float _lastDamageTimestamp;
+		protected float _lastUpdateTimestamp;
 		protected bool _bump = false;
 		protected Color _initialColor;
-		protected Image _foregroundImage;
+        protected Vector3 _newScale;
+
+        protected Image _foregroundImage;
+        protected Image _delayedImage;
 
 		/// <summary>
 		/// On start we store our image component
 		/// </summary>
 		protected virtual void Start()
 		{
-			_foregroundImage = ForegroundBar.GetComponent<Image>();
+            if (ForegroundBar != null)
+            {
+                _foregroundImage = ForegroundBar.GetComponent<Image>();
+            }
+			if (DelayedBar != null)
+            {
+                _delayedImage = DelayedBar.GetComponent<Image>();
+            }
 		}
 
 		/// <summary>
@@ -69,9 +103,22 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void Update()
 		{
+            AutoUpdate();
 			UpdateFrontBar();
 			UpdateDelayedBar();
 		}
+
+        protected virtual void AutoUpdate()
+        {
+            if (!AutoUpdating)
+            {
+                return;
+            }
+
+            _newPercent = MMMaths.Remap(BarProgress, 0f, 1f, StartValue, EndValue);
+            _targetFill = _newPercent;
+            _lastUpdateTimestamp = Time.time;
+        }
 
 		/// <summary>
 		/// Updates the front bar's scale
@@ -80,15 +127,49 @@ namespace MoreMountains.Tools
 		{
 			if (ForegroundBar != null)
 			{
-				if (LerpForegroundBar)
-				{
-					ForegroundBar.localScale = Vector3.Lerp(ForegroundBar.localScale, _targetLocalScale, Time.deltaTime * LerpForegroundBarSpeed);
-				}
-				else
-				{
-					ForegroundBar.localScale = _targetLocalScale;
-				}
-			}
+                if (FillMode == FillModes.LocalScale)
+                {
+                    _targetLocalScale = Vector3.one;
+                    switch (BarDirection)
+                    {
+                        case BarDirections.LeftToRight:
+                            _targetLocalScale.x = _targetFill;
+                            break;
+                        case BarDirections.RightToLeft:
+                            _targetLocalScale.x = 1f - _targetFill;
+                            break;
+                        case BarDirections.DownToUp:
+                            _targetLocalScale.y = _targetFill;
+                            break;
+                        case BarDirections.UpToDown:
+                            _targetLocalScale.y = 1f - _targetFill;
+                            break;
+                    }
+
+                    if (LerpForegroundBar)
+                    {
+                        _newScale = Vector3.Lerp(ForegroundBar.localScale, _targetLocalScale, Time.deltaTime * LerpForegroundBarSpeed);
+                    }
+                    else
+                    {
+                        _newScale = _targetLocalScale;
+                    }
+
+                    ForegroundBar.localScale = _newScale;
+                }
+
+                if ((FillMode == FillModes.FillAmount) && (_foregroundImage != null))
+                {
+                    if (LerpDelayedBar)
+                    {
+                        _foregroundImage.fillAmount = Mathf.Lerp(_foregroundImage.fillAmount, _targetFill, Time.deltaTime * LerpForegroundBarSpeed);
+                    }
+                    else
+                    {
+                        _foregroundImage.fillAmount = _targetFill;
+                    }
+                }
+            }
 		}
 
 		/// <summary>
@@ -98,17 +179,52 @@ namespace MoreMountains.Tools
 		{
 			if (DelayedBar != null)
 			{
-				if (Time.time - _lastDamageTimestamp > Delay)
+				if (Time.time - _lastUpdateTimestamp > Delay)
 				{
-					if (LerpDelayedBar)
-					{
-						DelayedBar.localScale = Vector3.Lerp(DelayedBar.localScale, _targetLocalScale, Time.deltaTime * LerpDelayedBarSpeed);
-					}
-					else
-					{
-						DelayedBar.localScale = _targetLocalScale;
-					}
-				}
+                    if (FillMode == FillModes.LocalScale)
+                    {
+                        _targetLocalScale = Vector3.one;
+
+                        switch (BarDirection)
+                        {
+                            case BarDirections.LeftToRight:
+                                _targetLocalScale.x = _targetFill;
+                                break;
+                            case BarDirections.RightToLeft:
+                                _targetLocalScale.x = 1f - _targetFill;
+                                break;
+                            case BarDirections.DownToUp:
+                                _targetLocalScale.y = _targetFill;
+                                break;
+                            case BarDirections.UpToDown:
+                                _targetLocalScale.y = 1f - _targetFill;
+                                break;
+                        }
+
+                        if (LerpDelayedBar)
+                        {
+                            _newScale = Vector3.Lerp(DelayedBar.localScale, _targetLocalScale, Time.deltaTime * LerpDelayedBarSpeed);
+                        }
+                        else
+                        {
+                            _newScale = _targetLocalScale;
+                        }
+
+                        DelayedBar.localScale = _newScale;
+                    }
+
+                    if ((FillMode == FillModes.FillAmount) && (_delayedImage != null))
+                    {
+                        if (LerpDelayedBar)
+                        {
+                            _delayedImage.fillAmount = Mathf.Lerp(_delayedImage.fillAmount, _targetFill, Time.deltaTime * LerpDelayedBarSpeed);
+                        }
+                        else
+                        {
+                            _delayedImage.fillAmount = _targetFill;
+                        }
+                    }
+                }
 			}
 		}
 
@@ -120,10 +236,10 @@ namespace MoreMountains.Tools
 		/// <param name="maxValue">Max value.</param>
 		public virtual void UpdateBar(float currentValue,float minValue,float maxValue)
 		{
-			_newPercent = MMMaths.Remap(currentValue,minValue,maxValue,0,1);
+			_newPercent = MMMaths.Remap(currentValue, minValue, maxValue, StartValue, EndValue);
 			BarProgress = _newPercent;
-			_targetLocalScale.x = _newPercent;
-			_lastDamageTimestamp = Time.time;
+			_targetFill = _newPercent;
+			_lastUpdateTimestamp = Time.time;
 		}
 
 		/// <summary>
@@ -159,17 +275,19 @@ namespace MoreMountains.Tools
 			{
 				journey = journey + Time.deltaTime;
 				float percent = Mathf.Clamp01(journey / BumpDuration);
-				float curvePercent = BumpAnimationCurve.Evaluate(percent);
-				this.transform.localScale = curvePercent * Vector3.one;
+                float curvePercent = BumpAnimationCurve.Evaluate(percent);
+                float colorCurvePercent = BumpColorAnimationCurve.Evaluate(percent);
+                this.transform.localScale = curvePercent * Vector3.one;
 
 				if (ChangeColorWhenBumping && (_foregroundImage != null))
 				{
-					_foregroundImage.color = Color.Lerp(_initialColor, BumpColor, curvePercent);
+					_foregroundImage.color = Color.Lerp(_initialColor, BumpColor, colorCurvePercent);
 				}
 
 				yield return null;
 			}
-			Bumping = false;
+            _foregroundImage.color = _initialColor;
+            Bumping = false;
 			yield break;
 
 		}
