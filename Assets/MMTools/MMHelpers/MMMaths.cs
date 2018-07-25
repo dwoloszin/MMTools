@@ -210,7 +210,7 @@ namespace MoreMountains.Tools
 		/// <param name="numberOfSides">Number of sides of the dice.</param>
 		public static int RollADice(int numberOfSides)
 		{
-			return (UnityEngine.Random.Range(1,numberOfSides));
+			return (UnityEngine.Random.Range(1,numberOfSides+1));
 		}
 
 		/// <summary>
