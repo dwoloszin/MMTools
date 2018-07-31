@@ -265,7 +265,33 @@ namespace MoreMountains.Tools
 			return remappedValue;
 		}
 
-		public static float RoundToClosest(float value, float[] possibleValues)
+        /// <summary>
+        /// Clamps the angle in parameters between a minimum and maximum angle (all angles expressed in degrees)
+        /// </summary>
+        /// <param name="angle"></param>
+        /// <param name="minimumAngle"></param>
+        /// <param name="maximumAngle"></param>
+        /// <returns></returns>
+        public static float ClampAngle(float angle, float minimumAngle, float maximumAngle)
+        {
+            if (angle < -360)
+            {
+                angle += 360;
+            }
+            if (angle > 360)
+            {
+                angle -= 360;
+            }
+            return Mathf.Clamp(angle, minimumAngle, maximumAngle);
+        }
+
+        /// <summary>
+        /// Rounds the value passed in parameters to the closest value in the parameter array
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="possibleValues"></param>
+        /// <returns></returns>
+        public static float RoundToClosest(float value, float[] possibleValues)
 		{
 			if (possibleValues.Length == 0) 
 			{
