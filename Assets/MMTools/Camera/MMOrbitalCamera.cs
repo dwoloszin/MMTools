@@ -87,7 +87,7 @@ namespace MoreMountains.Tools
                 return;
             }
 
-            if (Mode == Modes.Touch)
+            if (Mode == Modes.Touch && (Input.touchCount > 0))
             {
                 if ((Input.touches[0].phase == TouchPhase.Moved) && (Input.touchCount == 1))
                 {
@@ -117,7 +117,7 @@ namespace MoreMountains.Tools
             else if (Mode == Modes.Mouse)
             {
                 _angleX += Input.GetAxis("Mouse X") * RotationSpeed.x * Time.deltaTime;
-                _angleY += Input.GetAxis("Mouse Y") * RotationSpeed.y * Time.deltaTime;
+                _angleY += -Input.GetAxis("Mouse Y") * RotationSpeed.y * Time.deltaTime;
                 _angleY = Mathf.Clamp(_angleY, MinVerticalAngleLimit, MaxVerticalAngleLimit);
 
                 _desiredRotation = Quaternion.Euler(new Vector3(_angleY, _angleX, 0));
@@ -134,7 +134,7 @@ namespace MoreMountains.Tools
                 return;
             }
 
-            if (Mode == Modes.Touch)
+            if (Mode == Modes.Touch && (Input.touchCount > 0))
             {
                 if (Input.touchCount == 2)
                 {

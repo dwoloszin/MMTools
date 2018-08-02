@@ -11,20 +11,30 @@ namespace MoreMountains.Tools
     /// </summary>
     public class MMFollowTarget : MonoBehaviour
     {
+        [Header("Activity")]
+        /// whether or not the object is currently following its target
+        public bool FollowPosition = true;
+        public bool FollowRotation = true;
+
         [Header("Target")]
         /// the target to follow
         public Transform Target;
         /// the offset to apply to the followed target
         public Vector3 Offset;
-        [ReadOnly]
-        /// whether or not the object is currently following its target
-        public bool Following = true;
+        ///
+        public bool AddInitialDistanceXToXOffset = false;
+        public bool AddInitialDistanceYToYOffset = false;
+        public bool AddInitialDistanceZToZOffset = false;
 
         [Header("Interpolation")]
         /// whether or not we need to interpolate the movement
-        public bool InterpolateMovement = true;
+        public bool InterpolatePosition = true;
+        /// whether or not we need to interpolate the movement
+        public bool InterpolateRotation = true;
         /// the speed at which to interpolate the follower's movement
-        public float InterpolationSpeed = 10f;
+        public float FollowPositionSpeed = 10f;
+        /// the speed at which to interpolate the follower's rotation
+        public float FollowRotationSpeed = 10f;
 
         /// the possible update modes
         public enum Modes { Update, FixedUpdate, LateUpdate }
@@ -34,14 +44,17 @@ namespace MoreMountains.Tools
 
         [Header("Axis")]
         /// whether this object should follow its target on the X axis
-        public bool FollowX = true;
+        public bool FollowPositionX = true;
         /// whether this object should follow its target on the Y axis
-        public bool FollowY = true;
+        public bool FollowPositionY = true;
         /// whether this object should follow its target on the Z axis
-        public bool FollowZ = true;
+        public bool FollowPositionZ = true;
         
-        protected Vector3 _newTarget;
+        protected Vector3 _newTargetPosition;        
         protected Vector3 _initialPosition;
+
+        protected Quaternion _newTargetRotation;
+        protected Quaternion _initialRotation;
 
         /// <summary>
         /// On start we store our initial position
@@ -49,6 +62,7 @@ namespace MoreMountains.Tools
         protected virtual void Start()
         {
             SetInitialPosition();
+            SetOffset();
         }
 
         /// <summary>
@@ -56,7 +70,7 @@ namespace MoreMountains.Tools
         /// </summary>
         public virtual void StopFollowing()
         {
-            Following = false;
+            FollowPosition = false;
         }
 
         /// <summary>
@@ -64,7 +78,7 @@ namespace MoreMountains.Tools
         /// </summary>
         public virtual void StartFollowing()
         {
-            Following = true;
+            FollowPosition = true;
             SetInitialPosition();
         }
 
@@ -74,6 +88,15 @@ namespace MoreMountains.Tools
         protected virtual void SetInitialPosition()
         {
             _initialPosition = this.transform.position;
+            _initialRotation = this.transform.rotation;
+        }
+
+        protected virtual void SetOffset()
+        {
+            Vector3 difference = this.transform.position - Target.transform.position;
+            Offset.x = AddInitialDistanceXToXOffset ? difference.x : Offset.x;
+            Offset.y = AddInitialDistanceYToYOffset ? difference.y : Offset.y;
+            Offset.z = AddInitialDistanceZToZOffset ? difference.z : Offset.z;
         }
 
         /// <summary>
@@ -83,7 +106,8 @@ namespace MoreMountains.Tools
         {
             if (UpdateMode == Modes.Update)
             {
-                FollowTarget();
+                FollowTargetPosition();
+                FollowTargetRotation();
             }
         }
 
@@ -94,7 +118,7 @@ namespace MoreMountains.Tools
         {
             if (UpdateMode == Modes.FixedUpdate)
             {
-                FollowTarget();
+                FollowTargetPosition();
             }
         }
 
@@ -105,37 +129,61 @@ namespace MoreMountains.Tools
         {
             if (UpdateMode == Modes.LateUpdate)
             {
-                FollowTarget();
+                FollowTargetPosition();
             }
         }
 
         /// <summary>
         /// Follows the target, lerping the position or not based on what's been defined in the inspector
         /// </summary>
-        protected virtual void FollowTarget()
+        protected virtual void FollowTargetPosition()
         {
             if (Target == null)
             {
                 return;
             }
 
-            if (!Following)
+            if (!FollowPosition)
             {
                 return;
             }
 
-            _newTarget = Target.position + Offset;
-            if (!FollowX) { _newTarget.x = _initialPosition.x; }
-            if (!FollowY) { _newTarget.y = _initialPosition.y; }
-            if (!FollowZ) { _newTarget.z = _initialPosition.z; }
+            _newTargetPosition = Target.position + Offset;
+            if (!FollowPositionX) { _newTargetPosition.x = _initialPosition.x; }
+            if (!FollowPositionY) { _newTargetPosition.y = _initialPosition.y; }
+            if (!FollowPositionZ) { _newTargetPosition.z = _initialPosition.z; }
 
-            if (InterpolateMovement)
+            if (InterpolatePosition)
             {
-                this.transform.position = Vector3.Lerp(this.transform.position, _newTarget, Time.deltaTime * InterpolationSpeed);
+                this.transform.position = Vector3.Lerp(this.transform.position, _newTargetPosition, Time.deltaTime * FollowPositionSpeed);
             }
             else
             {
-                this.transform.position = _newTarget;
+                this.transform.position = _newTargetPosition;
+            }
+        }
+
+        protected virtual void FollowTargetRotation()
+        {
+            if (Target == null)
+            {
+                return;
+            }
+
+            if (!FollowPosition)
+            {
+                return;
+            }
+
+            _newTargetRotation = Target.rotation;
+
+            if (InterpolateRotation)
+            {
+                this.transform.rotation = Quaternion.Lerp(this.transform.rotation, _newTargetRotation, Time.deltaTime * FollowRotationSpeed);
+            }
+            else
+            {
+                this.transform.rotation = _newTargetRotation;
             }
         }
     }
