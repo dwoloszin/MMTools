@@ -136,7 +136,8 @@ namespace MoreMountains.Tools
 			_followTransform = newGameObject.AddComponent<MMFollowTarget>();
 			_followTransform.Offset = HealthBarOffset;
 			_followTransform.Target = this.transform;
-            _followTransform.InterpolateMovement = false;
+            _followTransform.InterpolatePosition = false;
+            _followTransform.InterpolateRotation = false;
             _followTransform.UpdateMode = FollowTargetMode;
 
 			Canvas newCanvas = newGameObject.AddComponent<Canvas>();
