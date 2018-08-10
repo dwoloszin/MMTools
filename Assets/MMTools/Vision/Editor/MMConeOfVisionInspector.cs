@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 using MoreMountains.Tools;
-using MoreMountains.InventoryEngine;
 using System.Collections.Generic;
 using UnityEditor;
 
