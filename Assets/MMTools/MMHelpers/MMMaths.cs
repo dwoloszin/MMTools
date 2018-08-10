@@ -309,6 +309,22 @@ namespace MoreMountains.Tools
 			}
 			return closestValue;
 
-		}
-	}
+        }
+
+        /// <summary>
+        /// Returns a vector3 based on the angle in parameters
+        /// </summary>
+        /// <param name="angle"></param>
+        /// <returns></returns>
+        public static Vector3 DirectionFromAngle(float angle, float additionalAngle)
+        {
+            angle += additionalAngle;
+
+            Vector3 direction = Vector3.zero;
+            direction.x = Mathf.Sin(angle * Mathf.Deg2Rad);
+            direction.y = 0f;
+            direction.z = Mathf.Cos(angle * Mathf.Deg2Rad);
+            return direction;
+        }
+    }
 }

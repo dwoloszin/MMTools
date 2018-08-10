@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 using MoreMountains.Tools;
-using MoreMountains.InventoryEngine;
 using System.Collections.Generic;
 using System;
 
@@ -64,7 +63,7 @@ namespace MoreMountains.Tools
             EulerAngles = eulerAngles;
         }
 
-        
+
 
         protected virtual void ScanForTargets()
         {
