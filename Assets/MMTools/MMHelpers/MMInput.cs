@@ -14,6 +14,8 @@ namespace MoreMountains.Tools
 		/// </summary>
 		public enum ButtonStates { Off, ButtonDown, ButtonPressed, ButtonUp }
 
+        public enum AxisTypes { Positive, Negative }
+
 		/// <summary>
 		/// Takes an axis and returns a ButtonState depending on whether the axis is pressed or not (useful for xbox triggers for example), and when you need to use an axis/trigger as a binary thing
 		/// </summary>
@@ -21,13 +23,14 @@ namespace MoreMountains.Tools
 		/// <param name="axisName">Axis name.</param>
 		/// <param name="threshold">Threshold value below which the button is off or released.</param>
 		/// <param name="currentState">Current state of the axis.</param>
-		public static ButtonStates ProcessAxisAsButton (string axisName, float threshold, ButtonStates currentState)
+		public static ButtonStates ProcessAxisAsButton (string axisName, float threshold, ButtonStates currentState, AxisTypes AxisType = AxisTypes.Positive)
 		{
 			float axisValue = Input.GetAxis (axisName);
 			ButtonStates returnState;
 
-			//
-			if (axisValue < threshold)
+            bool comparison = (AxisType == AxisTypes.Positive) ? (axisValue < threshold) : (axisValue > threshold);
+			
+			if (comparison)
 			{
 				if (currentState == ButtonStates.ButtonPressed)
 				{
