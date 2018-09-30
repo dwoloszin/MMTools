@@ -4,7 +4,7 @@ using System.Collections;
 namespace MoreMountains.Tools
 {	
 	/// <summary>
-	/// Various static methods used throughout the Infinite Runner Engine and the Corgi Engine.
+	/// Input helpers
 	/// </summary>
 
 	public class MMInput : MonoBehaviour 

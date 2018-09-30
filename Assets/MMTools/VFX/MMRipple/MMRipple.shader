@@ -1,4 +1,4 @@
-Shader "More Mountains/Ripple"
+Shader "MoreMountains/Ripple"
 {
 	Properties
 	{

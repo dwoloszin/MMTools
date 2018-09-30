@@ -14,12 +14,47 @@ namespace MoreMountains.Tools
 		public float Duration;
 		public float Amplitude;
 		public float Frequency;
-	}
 
-	/// <summary>
-	/// Camera shake event, trigger this to shake the camera
-	/// </summary>
-	public struct MMCameraShakeEvent
+        public MMCameraShakeProperties(float duration, float amplitude, float frequency)
+        {
+            Duration = duration;
+            Amplitude = amplitude;
+            Frequency = frequency;
+        }
+    }
+
+    public enum MMCameraZoomModes { For, Set, Reset }
+
+    public struct MMCameraZoomEvent
+    {
+        public MMCameraZoomModes Mode;
+        public float FieldOfView;
+        public float TransitionDuration;
+        public float Duration;
+
+        public MMCameraZoomEvent(MMCameraZoomModes mode, float newFieldOfView, float transitionDuration, float duration)
+        {
+            Mode = mode;
+            FieldOfView = newFieldOfView;
+            TransitionDuration = transitionDuration;
+            Duration = duration;
+
+        }
+        static MMCameraZoomEvent e;
+        public static void Trigger(MMCameraZoomModes mode, float newFieldOfView, float transitionDuration, float duration)
+        {
+            e.Mode = mode;
+            e.FieldOfView = newFieldOfView;
+            e.TransitionDuration = transitionDuration;
+            e.Duration = duration;
+            MMEventManager.TriggerEvent(e);
+        }
+    }
+
+    /// <summary>
+    /// Camera shake event, trigger this to shake the camera
+    /// </summary>
+    public struct MMCameraShakeEvent
 	{
 		public MMCameraShakeProperties Properties;
 		public MMCameraShakeEvent(float duration, float amplitude, float frequency)
@@ -27,8 +62,16 @@ namespace MoreMountains.Tools
 			Properties.Duration = duration;
 			Properties.Amplitude = amplitude;
 			Properties.Frequency = frequency;
-		}
-	}
+        }
+        static MMCameraShakeEvent e;
+        public static void Trigger(float duration, float amplitude, float frequency)
+        {
+            e.Properties.Duration = duration;
+            e.Properties.Amplitude = amplitude;
+            e.Properties.Frequency = frequency;
+            MMEventManager.TriggerEvent(e);
+        }
+    }
 
 	[RequireComponent(typeof(MMShaker))]
 	/// <summary>

@@ -3,7 +3,7 @@ using MoreMountains.Tools;
 using UnityEditor;
 using UnityEngine.UI;
 
-namespace MoreMountains.CorgiEngine
+namespace MoreMountains.Tools
 {	
 	[CustomEditor(typeof(MMHealthBar),true)]
 	/// <summary>

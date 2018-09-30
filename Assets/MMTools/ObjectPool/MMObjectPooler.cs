@@ -72,7 +72,7 @@ namespace MoreMountains.Tools
 		/// <summary>
 		/// Implement this method to fill the pool with objects
 		/// </summary>
-	    protected virtual void FillObjectPool()
+	    public virtual void FillObjectPool()
 	    {
 	        return ;
 	    }

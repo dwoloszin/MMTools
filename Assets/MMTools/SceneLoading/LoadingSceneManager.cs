@@ -120,7 +120,7 @@ namespace MoreMountains.Tools
 			yield return new WaitForSeconds(LoadCompleteDelay);
 
 			// we fade to black
-			MMEventManager.TriggerEvent (new MMFadeInEvent (ExitFadeDuration));
+			MMFadeInEvent.Trigger(ExitFadeDuration);
 			yield return new WaitForSeconds(ExitFadeDuration);
 
 			// we switch to the new scene
@@ -132,7 +132,7 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void LoadingSetup() 
 		{
-			MMEventManager.TriggerEvent (new MMFadeOutEvent (StartFadeDuration));
+			MMFadeOutEvent.Trigger(StartFadeDuration);
 			LoadingCompleteAnimation.alpha=0;
 			LoadingProgressBar.GetComponent<Image>().fillAmount = 0f;
 			LoadingText.text = _loadingTextValue;

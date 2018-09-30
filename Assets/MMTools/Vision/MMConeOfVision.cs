@@ -6,15 +6,40 @@ using System;
 
 namespace MoreMountains.Tools
 {
-    //TODO : make the cone a prefab
+    // initially inspired by this great tutorial by Sebastian Lague : https://www.youtube.com/watch?v=rQG9aUWarwE - check out his tutorials, they're amazing!
     [Serializable]
     public class MMConeOfVision : MonoBehaviour
     {
-        [Header("Layer masks")]
-        public LayerMask ObstacleMask;
-        public LayerMask TargetMask;
+        public struct RaycastData
+        {
+            public bool Hit;
+            public Vector3 Point;
+            public float Distance;
+            public float Angle;
+
+            public RaycastData(bool hit, Vector3 point, float distance, float angle)
+            {
+                Hit = hit;
+                Point = point;
+                Distance = distance;
+                Angle = angle;
+            }
+        }
+
+        public struct MeshEdgePosition
+        {
+            public Vector3 PointA;
+            public Vector3 PointB;
+
+            public MeshEdgePosition(Vector3 pointA, Vector3 pointB)
+            {
+                PointA = pointA;
+                PointB = pointB;
+            }
+        }
 
         [Header("Vision")]
+        public LayerMask ObstacleMask;
         public float VisionRadius = 5f;
         [Range(0f, 360f)]
         public float VisionAngle = 20f;
@@ -22,12 +47,14 @@ namespace MoreMountains.Tools
         public Vector3 Direction;
         [ReadOnly]
         public Vector3 EulerAngles;
+        
+        [Header("Target scanning")]
+        public bool ShouldScanForTargets = true;
+        public LayerMask TargetMask;
+        public float ScanFrequencyInSeconds = 1f;
         [ReadOnly]
         public List<Transform> VisibleTargets = new List<Transform>();
-
-        [Header("Frequency")]
-        public float ScanFrequencyInSeconds = 1f;
-
+        
         [Header("Mesh")]
         public float MeshDensity = 0.2f;
         public int EdgePrecision = 3;
@@ -50,7 +77,7 @@ namespace MoreMountains.Tools
 
         protected virtual void LateUpdate()
         {
-            if (Time.time - _lastScanTimestamp > ScanFrequencyInSeconds)
+            if ((Time.time - _lastScanTimestamp > ScanFrequencyInSeconds) && ShouldScanForTargets)
             {
                 ScanForTargets();
             }
@@ -91,12 +118,12 @@ namespace MoreMountains.Tools
             float stepsAngle = VisionAngle / steps;
 
             List<Vector3> viewPoints = new List<Vector3>();
-            ViewCastInfo oldViewCast = new ViewCastInfo();
+            RaycastData oldViewCast = new RaycastData();
 
             for (int i = 0; i <= steps; i++)
             {
                 float angle = stepsAngle * i + EulerAngles.y - VisionAngle / 2f;
-                ViewCastInfo viewCast = ViewCast(angle);
+                RaycastData viewCast = RaycastAtAngle(angle);
 
                 if (i > 0)
                 {
@@ -105,7 +132,7 @@ namespace MoreMountains.Tools
                     if ((oldViewCast.Hit != viewCast.Hit)
                         || (oldViewCast.Hit && viewCast.Hit && thresholdExceeded))
                     {
-                        EdgeInfo edge = FindEdge(oldViewCast, viewCast);
+                        MeshEdgePosition edge = FindMeshEdgePosition(oldViewCast, viewCast);
                         if (edge.PointA != Vector3.zero)
                         {
                             viewPoints.Add(edge.PointA);
@@ -144,7 +171,7 @@ namespace MoreMountains.Tools
             _visionMesh.RecalculateNormals();
         }
 
-        EdgeInfo FindEdge(ViewCastInfo minimumViewCast, ViewCastInfo maximumViewCast)
+        MeshEdgePosition FindMeshEdgePosition(RaycastData minimumViewCast, RaycastData maximumViewCast)
         {
             float minAngle = minimumViewCast.Angle;
             float maxAngle = maximumViewCast.Angle;
@@ -154,7 +181,7 @@ namespace MoreMountains.Tools
             for (int i = 0; i < EdgePrecision; i++)
             {
                 float angle = (minAngle + maxAngle) / 2;
-                ViewCastInfo newViewCast = ViewCast(angle);
+                RaycastData newViewCast = RaycastAtAngle(angle);
 
                 bool thresholdExceeded = Mathf.Abs(minimumViewCast.Distance - newViewCast.Distance) > EdgeThreshold;
                 if (newViewCast.Hit = minimumViewCast.Hit && !thresholdExceeded)
@@ -169,49 +196,21 @@ namespace MoreMountains.Tools
                 }
             }
 
-            return new EdgeInfo(minPoint, maxPoint);
+            return new MeshEdgePosition(minPoint, maxPoint);
         }
 
-        ViewCastInfo ViewCast(float angle)
+        RaycastData RaycastAtAngle(float angle)
         {
             Vector3 direction = MMMaths.DirectionFromAngle(angle, 0f);
             RaycastHit hit;
 
             if (Physics.Raycast(this.transform.position, direction, out hit, VisionRadius, ObstacleMask))
             {
-                return new ViewCastInfo(true, hit.point, hit.distance, angle);
+                return new RaycastData(true, hit.point, hit.distance, angle);
             }
             else
             {
-                return new ViewCastInfo(false, this.transform.position + direction * VisionRadius, VisionRadius, angle);
-            }
-        }
-
-        public struct ViewCastInfo
-        {
-            public bool Hit;
-            public Vector3 Point;
-            public float Distance;
-            public float Angle;
-
-            public ViewCastInfo(bool hit, Vector3 point, float distance, float angle)
-            {
-                Hit = hit;
-                Point = point;
-                Distance = distance;
-                Angle = angle;
-            }
-        }
-
-        public struct EdgeInfo
-        {
-            public Vector3 PointA;
-            public Vector3 PointB;
-
-            public EdgeInfo(Vector3 pointA, Vector3 pointB)
-            {
-                PointA = pointA;
-                PointB = pointB;
+                return new RaycastData(false, this.transform.position + direction * VisionRadius, VisionRadius, angle);
             }
         }
     }

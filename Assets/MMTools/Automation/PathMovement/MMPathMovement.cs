@@ -5,19 +5,7 @@ using MoreMountains.Tools;
 
 namespace MoreMountains.Tools
 {
-	[System.Serializable]
-	/// <summary>
-	/// This class describes an element on a PathMovement's path description
-	/// </summary>
-	public class MMPathMovementElement
-	{
-		/// the point that make up the path the object will follow
-		public Vector3 PathElementPosition;
-		/// the delay (in seconds) to apply when the object meets each item of the path. Obviously you'll want to have the same number of items in the Delays list as in the Path list.
-		public float Delay;
-	}
-
-	[AddComponentMenu("Corgi Engine/Environment/Path Movement")]
+	[AddComponentMenu("MMTools/Environment/Path Movement")]
 	/// <summary>
 	/// Add this component to an object and it'll be able to move along a path defined from its inspector.
 	/// </summary>
@@ -75,14 +63,8 @@ namespace MoreMountains.Tools
 		protected Vector3 _originalTransformPosition;
 		/// internal flag, hidden and shouldn't be accessed
 		protected bool _originalTransformPositionStatus=false;
-		/// if this is true, the object can move along the path
-		public virtual bool CanMove
-		{
-			get 
-			{
-				return true;
-			}
-		}
+        /// if this is true, the object can move along the path
+        public virtual bool CanMove { get; set; }
 
 		protected bool _active=false;
 	    protected IEnumerator<Vector3> _currentPoint;
@@ -111,6 +93,7 @@ namespace MoreMountains.Tools
 			// on Start, we set our active flag to true
 			_active=true;
 			_endReached = false;
+            CanMove = true;
 
 			// if the path is null we exit
 			if(PathElements == null || PathElements.Count < 1)

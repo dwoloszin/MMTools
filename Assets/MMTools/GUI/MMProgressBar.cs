@@ -78,16 +78,20 @@ namespace MoreMountains.Tools
 		protected float _lastUpdateTimestamp;
 		protected bool _bump = false;
 		protected Color _initialColor;
+        protected Vector3 _initialScale;
         protected Vector3 _newScale;
 
         protected Image _foregroundImage;
         protected Image _delayedImage;
+        protected bool _initialized;
 
 		/// <summary>
 		/// On start we store our image component
 		/// </summary>
 		protected virtual void Start()
 		{
+            _initialScale = this.transform.localScale;
+            
             if (ForegroundBar != null)
             {
                 _foregroundImage = ForegroundBar.GetComponent<Image>();
@@ -96,7 +100,8 @@ namespace MoreMountains.Tools
             {
                 _delayedImage = DelayedBar.GetComponent<Image>();
             }
-		}
+            _initialized = true;
+        }
 
 		/// <summary>
 		/// On Update we update our bars
@@ -160,7 +165,7 @@ namespace MoreMountains.Tools
 
                 if ((FillMode == FillModes.FillAmount) && (_foregroundImage != null))
                 {
-                    if (LerpDelayedBar)
+                    if (LerpForegroundBar)
                     {
                         _foregroundImage.fillAmount = Mathf.Lerp(_foregroundImage.fillAmount, _targetFill, Time.deltaTime * LerpForegroundBarSpeed);
                     }
@@ -237,17 +242,22 @@ namespace MoreMountains.Tools
 		public virtual void UpdateBar(float currentValue,float minValue,float maxValue)
 		{
 			_newPercent = MMMaths.Remap(currentValue, minValue, maxValue, StartValue, EndValue);
-			BarProgress = _newPercent;
+            if ((_newPercent != BarProgress) && !Bumping)
+            {
+                Bump();
+            }
+            BarProgress = _newPercent;
 			_targetFill = _newPercent;
 			_lastUpdateTimestamp = Time.time;
-		}
+
+        }
 
 		/// <summary>
 		/// Triggers a camera bump
 		/// </summary>
 		public virtual void Bump()
 		{
-			if (!BumpScaleOnChange)
+			if (!BumpScaleOnChange || !_initialized)
 			{
 				return;
 			}
@@ -263,7 +273,6 @@ namespace MoreMountains.Tools
 		/// <returns>The coroutine.</returns>
 		protected virtual IEnumerator BumpCoroutine()
 		{
-
 			float journey = 0f;
 			Bumping = true;
 			if (_foregroundImage != null)
@@ -277,7 +286,7 @@ namespace MoreMountains.Tools
 				float percent = Mathf.Clamp01(journey / BumpDuration);
                 float curvePercent = BumpAnimationCurve.Evaluate(percent);
                 float colorCurvePercent = BumpColorAnimationCurve.Evaluate(percent);
-                this.transform.localScale = curvePercent * Vector3.one;
+                this.transform.localScale = curvePercent * _initialScale;
 
 				if (ChangeColorWhenBumping && (_foregroundImage != null))
 				{
@@ -288,7 +297,7 @@ namespace MoreMountains.Tools
 			}
             _foregroundImage.color = _initialColor;
             Bumping = false;
-			yield break;
+			yield return null;
 
 		}
 	}

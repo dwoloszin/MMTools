@@ -20,8 +20,13 @@ namespace MoreMountains.Tools
 	    /// <summary>
 	    /// Fills the object pool with the gameobject type you've specified in the inspector
 	    /// </summary>
-	    protected override void FillObjectPool()
+	    public override void FillObjectPool()
 	    {
+            if (GameObjectToPool == null)
+            {
+                return;
+            }
+
 			CreateWaitingPool ();
 
 			// we initialize the list we'll use to 

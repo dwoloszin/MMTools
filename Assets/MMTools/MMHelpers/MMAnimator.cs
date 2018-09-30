@@ -6,10 +6,9 @@ using System.Collections.Generic;
 
 namespace MoreMountains.Tools
 {	
-	/// <summary>
-	/// Various static methods used throughout the Infinite Runner Engine and the Corgi Engine.
-	/// </summary>
-
+    /// <summary>
+    /// Animator helper methods
+    /// </summary>
 	public static class MMAnimator 
 	{
 		// Adds an animator parameter name to a parameter list if that parameter exists.

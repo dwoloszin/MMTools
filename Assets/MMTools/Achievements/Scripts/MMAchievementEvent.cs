@@ -19,6 +19,13 @@ namespace MoreMountains.Tools
 		public MMAchievementUnlockedEvent(MMAchievement newAchievement)
 		{
 			Achievement = newAchievement;
-		}
-	}
+        }
+
+        static MMAchievementUnlockedEvent e;
+        public static void Trigger(MMAchievement newAchievement)
+        {
+            e.Achievement = newAchievement;
+            MMEventManager.TriggerEvent(e);
+        }
+    }
 }

@@ -9,25 +9,27 @@ namespace MoreMountains.Tools
     [CustomEditor(typeof(MMConeOfVision))]
     public class MMConeOfVisionInspector : Editor
     {
+        protected MMConeOfVision _coneOfVision;
+
         protected virtual void OnSceneGUI()
         {
             // draws a circle around the character to represent the cone of vision's radius
-            MMConeOfVision coneOfVision = (MMConeOfVision)target;
+            _coneOfVision = (MMConeOfVision)target;
 
             Handles.color = Color.yellow;
-            Handles.DrawWireArc(coneOfVision.transform.position, Vector3.up, Vector3.forward, 360f, coneOfVision.VisionRadius);
+            Handles.DrawWireArc(_coneOfVision.transform.position, Vector3.up, Vector3.forward, 360f, _coneOfVision.VisionRadius);
 
             // draws two lines to mark the vision angle
-            Vector3 visionAngleLeft = MMMaths.DirectionFromAngle(-coneOfVision.VisionAngle / 2f, coneOfVision.EulerAngles.y);
-            Vector3 visionAngleRight = MMMaths.DirectionFromAngle(coneOfVision.VisionAngle / 2f, coneOfVision.EulerAngles.y);
+            Vector3 visionAngleLeft = MMMaths.DirectionFromAngle(-_coneOfVision.VisionAngle / 2f, _coneOfVision.EulerAngles.y);
+            Vector3 visionAngleRight = MMMaths.DirectionFromAngle(_coneOfVision.VisionAngle / 2f, _coneOfVision.EulerAngles.y);
 
-            Handles.DrawLine(coneOfVision.transform.position, coneOfVision.transform.position + visionAngleLeft * coneOfVision.VisionRadius);
-            Handles.DrawLine(coneOfVision.transform.position, coneOfVision.transform.position + visionAngleRight * coneOfVision.VisionRadius);
+            Handles.DrawLine(_coneOfVision.transform.position, _coneOfVision.transform.position + visionAngleLeft * _coneOfVision.VisionRadius);
+            Handles.DrawLine(_coneOfVision.transform.position, _coneOfVision.transform.position + visionAngleRight * _coneOfVision.VisionRadius);
 
-            foreach (Transform visibleTarget in coneOfVision.VisibleTargets)
+            foreach (Transform visibleTarget in _coneOfVision.VisibleTargets)
             {
                 Handles.color = Colors.Orange;
-                Handles.DrawLine(coneOfVision.transform.position, visibleTarget.position);
+                Handles.DrawLine(_coneOfVision.transform.position, visibleTarget.position);
             }
         }
     }

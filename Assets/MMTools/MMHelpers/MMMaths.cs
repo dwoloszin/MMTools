@@ -6,7 +6,7 @@ using System;
 namespace MoreMountains.Tools
 {	
 	/// <summary>
-	/// Various static methods used throughout the Infinite Runner Engine and the Corgi Engine.
+	/// Math helpers
 	/// </summary>
 
 	public static class MMMaths 
@@ -50,29 +50,41 @@ namespace MoreMountains.Tools
 		public static Vector3 RoundVector3 (Vector3 vector)
 		{
 			return new Vector3 (Mathf.Round (vector.x), Mathf.Round (vector.y), Mathf.Round (vector.z));
-		}
+        }
 
-		/// <summary>
-		/// Returns a random vector3 from 2 defined vector3.
-		/// </summary>
-		/// <returns>The vector3.</returns>
-		/// <param name="min">Minimum.</param>
-		/// <param name="max">Maximum.</param>
-		public static Vector3 RandomVector3(Vector3 minimum, Vector3 maximum)
-		{
-			return new Vector3(UnityEngine.Random.Range(minimum.x, maximum.x), 
-											 UnityEngine.Random.Range(minimum.y, maximum.y), 
-											 UnityEngine.Random.Range(minimum.z, maximum.z));
-		}
+        /// <summary>
+        /// Returns a random Vector2 from 2 defined Vector2.
+        /// </summary>
+        /// <returns>The random Vector2.</returns>
+        /// <param name="min">Minimum.</param>
+        /// <param name="max">Maximum.</param>
+        public static Vector2 RandomVector2(Vector2 minimum, Vector2 maximum)
+        {
+            return new Vector2(UnityEngine.Random.Range(minimum.x, maximum.x),
+                                             UnityEngine.Random.Range(minimum.y, maximum.y));
+        }
 
-		/// <summary>
-		/// Rotates a point around the given pivot.
-		/// </summary>
-		/// <returns>The new point position.</returns>
-		/// <param name="point">The point to rotate.</param>
-		/// <param name="pivot">The pivot's position.</param>
-		/// <param name="angle">The angle we want to rotate our point.</param>
-		public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, float angle) 
+        /// <summary>
+        /// Returns a random Vector3 from 2 defined Vector3.
+        /// </summary>
+        /// <returns>The random Vector3.</returns>
+        /// <param name="min">Minimum.</param>
+        /// <param name="max">Maximum.</param>
+        public static Vector3 RandomVector3(Vector3 minimum, Vector3 maximum)
+        {
+            return new Vector3(UnityEngine.Random.Range(minimum.x, maximum.x),
+                                             UnityEngine.Random.Range(minimum.y, maximum.y),
+                                             UnityEngine.Random.Range(minimum.z, maximum.z));
+        }
+
+        /// <summary>
+        /// Rotates a point around the given pivot.
+        /// </summary>
+        /// <returns>The new point position.</returns>
+        /// <param name="point">The point to rotate.</param>
+        /// <param name="pivot">The pivot's position.</param>
+        /// <param name="angle">The angle we want to rotate our point.</param>
+        public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, float angle) 
 		{			
 			angle = angle*(Mathf.PI/180f);
 			var rotatedX = Mathf.Cos(angle) * (point.x - pivot.x) - Mathf.Sin(angle) * (point.y-pivot.y) + pivot.x;
@@ -324,6 +336,22 @@ namespace MoreMountains.Tools
             direction.x = Mathf.Sin(angle * Mathf.Deg2Rad);
             direction.y = 0f;
             direction.z = Mathf.Cos(angle * Mathf.Deg2Rad);
+            return direction;
+        }
+
+        /// <summary>
+        /// Returns a vector3 based on the angle in parameters
+        /// </summary>
+        /// <param name="angle"></param>
+        /// <returns></returns>
+        public static Vector3 DirectionFromAngle2D(float angle, float additionalAngle)
+        {
+            angle += additionalAngle;
+
+            Vector3 direction = Vector3.zero;
+            direction.x = Mathf.Sin(angle * Mathf.Deg2Rad);
+            direction.y = Mathf.Cos(angle * Mathf.Deg2Rad);
+            direction.z = 0f;
             return direction;
         }
     }

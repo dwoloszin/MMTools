@@ -56,7 +56,7 @@ namespace MoreMountains.Tools
 		/// <summary>
 		/// Fills the object pool with the amount of objects you specified in the inspector.
 		/// </summary>
-		protected override void FillObjectPool()
+		public override void FillObjectPool()
 		{
 			CreateWaitingPool ();
 			// we initialize the pool

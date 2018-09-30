@@ -59,7 +59,7 @@ namespace MoreMountains.Tools
 			// we play a sound if set
 			if (achievement.UnlockedSound != null)
 			{
-				MMEventManager.TriggerEvent(new MMSfxEvent (achievement.UnlockedSound));
+				MMSfxEvent.Trigger (achievement.UnlockedSound);
 			}
 
 			// we fade it in and out

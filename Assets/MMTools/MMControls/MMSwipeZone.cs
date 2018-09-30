@@ -41,8 +41,19 @@ namespace MoreMountains.Tools
 			SwipeLength = length;
 			SwipeOrigin = origin;
 			SwipeDestination = destination;
-		}
-	}
+        }
+
+        static MMSwipeEvent e;
+        public static void Trigger(MMPossibleSwipeDirections direction, float angle, float length, Vector2 origin, Vector2 destination)
+        {
+            e.SwipeDirection = direction;
+            e.SwipeAngle = angle;
+            e.SwipeLength = length;
+            e.SwipeOrigin = origin;
+            e.SwipeDestination = destination;
+            MMEventManager.TriggerEvent(e);
+        }
+    }
 
 	[RequireComponent(typeof(RectTransform))]
 	/// <summary>

@@ -46,7 +46,19 @@ namespace MoreMountains.Tools
 			TimeScaleProperty.LerpSpeed = lerpSpeed;
             TimeScaleProperty.Infinite = infinite;
 		}
-	}
+        
+        static MMTimeScaleEvent e;
+        public static void Trigger(MMTimeScaleMethods timeScaleMethod, float timeScale, float duration, bool lerp, float lerpSpeed, bool infinite)
+        {
+            e.TimeScaleMethod = timeScaleMethod;
+            e.TimeScaleProperty.TimeScale = timeScale;
+            e.TimeScaleProperty.Duration = duration;
+            e.TimeScaleProperty.Lerp = lerp;
+            e.TimeScaleProperty.LerpSpeed = lerpSpeed;
+            e.TimeScaleProperty.Infinite = infinite;
+            MMEventManager.TriggerEvent(e);
+        }
+    }
 
 	/// <summary>
 	/// An event used to freeze the whole screen for a certain duration, and return it back to a certain timescale afterwards
@@ -58,7 +70,14 @@ namespace MoreMountains.Tools
 		{
 			FreezeDuration = duration;
 		}
-	}
+        
+        static MMFreezeFrameEvent e;
+        public static void Trigger(float duration)
+        {
+            e.FreezeDuration = duration;
+            MMEventManager.TriggerEvent(e);
+        }
+    }
 
 	/// <summary>
 	/// Put this component in your scene and it'll catch MMFreezeFrameEvents and MMTimeScaleEvents, allowing you to control the flow of time.
@@ -94,7 +113,7 @@ namespace MoreMountains.Tools
 		/// </summary>
 		protected virtual void TestButtonToSlowDownTime()
 		{
-			MMEventManager.TriggerEvent(new MMTimeScaleEvent(MMTimeScaleMethods.For, 0.5f, 3f, true, 1f, false));
+			MMTimeScaleEvent.Trigger(MMTimeScaleMethods.For, 0.5f, 3f, true, 1f, false);
 		}
 
 		/// <summary>
@@ -200,9 +219,9 @@ namespace MoreMountains.Tools
 		}
 
 		/// <summary>
-		/// Catches CorgiEngineTimeScaleEvents and acts on them
+		/// Catches TimeScaleEvents and acts on them
 		/// </summary>
-		/// <param name="timeScaleEvent">CorgiEngineTimeScaleEvent event.</param>
+		/// <param name="timeScaleEvent">MMTimeScaleEvent event.</param>
 		public virtual void OnMMEvent(MMTimeScaleEvent timeScaleEvent)
 		{
 			switch (timeScaleEvent.TimeScaleMethod)

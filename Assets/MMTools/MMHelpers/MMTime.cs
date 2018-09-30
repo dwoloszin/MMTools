@@ -5,7 +5,7 @@ using System;
 namespace MoreMountains.Tools
 {	
 	/// <summary>
-	/// Various static methods used throughout the Infinite Runner Engine and the Corgi Engine.
+	/// Time helpers
 	/// </summary>
 
 	public class MMTime : MonoBehaviour 

@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MoreMountains.Tools
-{	
-	/// <summary>
-	/// Contains all extension methods of the Corgi Engine and Infinite Runner Engine.
-	/// </summary>
-	public static class ExtensionMethods 
+{
+    /// <summary>
+    /// Contains all MMTools extension methods 
+    /// </summary>
+    public static class ExtensionMethods 
 	{
 		/// <summary>
 		/// Determines if an animator contains a certain parameter, based on a type and a name
@@ -136,6 +136,21 @@ namespace MoreMountains.Tools
                 angleInDegrees += 360f;
             }                
             return angleInDegrees;
+        }
+
+        public static void DestroyAllChildren(this Transform transform)
+        {
+            for (int t = transform.childCount - 1; t >= 0; t--)
+            {
+                if (Application.isPlaying)
+                {
+                    UnityEngine.Object.Destroy(transform.GetChild(t).gameObject);
+                }
+                else
+                {
+                    UnityEngine.Object.DestroyImmediate(transform.GetChild(t).gameObject);
+                }
+            }
         }
 
 

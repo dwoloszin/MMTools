@@ -13,6 +13,7 @@ namespace MoreMountains.Tools
         /// Decide will be performed every frame while the Brain is in a state this Decision is in. Should return true or false, which will then determine the transition's outcome.
         public abstract bool Decide();
 
+        public bool DecisionInProgress { get; set; }
         protected AIBrain _brain;
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace MoreMountains.Tools
         /// </summary>
         public virtual void OnEnterState()
         {
-
+            DecisionInProgress = true;
         }
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace MoreMountains.Tools
         /// </summary>
         public virtual void OnExitState()
         {
-
+            DecisionInProgress = false;
         }
     }
 }

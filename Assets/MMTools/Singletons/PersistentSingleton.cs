@@ -39,9 +39,9 @@ namespace MoreMountains.Tools
 			if (!Application.isPlaying)
 			{
 				return;
-			}
+            }
 
-			if(_instance == null)
+            if (_instance == null)
 			{
 				//If I am the first instance, make me the Singleton
 				_instance = this as T;

@@ -16,8 +16,10 @@ namespace MoreMountains.Tools
 		public float EndValue = 0f;
 		/// the distance to the start or end value at which the class should start lerping
 		public float Tolerance = 0.01f;
+        /// optional - the ID of the player associated to this bar
+        public string PlayerID;
 
-		protected Image _radialImage;
+        protected Image _radialImage;
 		protected float _newPercent;
 
 		/// <summary>

@@ -10,6 +10,7 @@ namespace MoreMountains.Tools
     public abstract class AIAction : MonoBehaviour
     {
         public abstract void PerformAction();
+        public bool ActionInProgress { get; set; }
         protected AIBrain _brain;
 
         /// <summary>
@@ -34,7 +35,7 @@ namespace MoreMountains.Tools
         /// </summary>
         public virtual void OnEnterState()
         {
-
+            ActionInProgress = true;
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace MoreMountains.Tools
         /// </summary>
         public virtual void OnExitState()
         {
-
+            ActionInProgress = false;
         }
     }
 }

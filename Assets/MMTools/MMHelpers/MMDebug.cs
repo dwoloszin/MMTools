@@ -9,7 +9,7 @@ using UnityEditor;
 namespace MoreMountains.Tools
 {	
 	/// <summary>
-	/// Various static methods used throughout the Infinite Runner Engine and the Corgi Engine.
+	/// Debug helpers
 	/// </summary>
 
 	public static class MMDebug 
@@ -197,15 +197,19 @@ namespace MoreMountains.Tools
 
 			tempOrigin.x = spot.x - crossSize / 2;
 			tempOrigin.y = spot.y - crossSize / 2;
-			tempDirection.x = 1; 
+            tempOrigin.z = spot.z ;
+            tempDirection.x = 1; 
 			tempDirection.y = 1;
-			Debug.DrawRay (tempOrigin, tempDirection * crossSize, color);
+            tempDirection.z = 0;
+            Debug.DrawRay (tempOrigin, tempDirection * crossSize, color);
 
 			tempOrigin.x = spot.x - crossSize / 2;
-			tempOrigin.y = spot.y + crossSize / 2;
-			tempDirection.x = 1; 
+            tempOrigin.y = spot.y + crossSize / 2;
+            tempOrigin.z = spot.z ;
+            tempDirection.x = 1; 
 			tempDirection.y = -1;
-			Debug.DrawRay (tempOrigin, tempDirection * crossSize, color);
+            tempDirection.z = 0;
+            Debug.DrawRay (tempOrigin, tempDirection * crossSize, color);
 		}
 
 		/// <summary>

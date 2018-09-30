@@ -4,7 +4,7 @@ using System.Collections;
 namespace MoreMountains.Tools
 {	
 	/// <summary>
-	/// Various static methods used throughout the Infinite Runner Engine and the Corgi Engine.
+	/// Bounds helpers
 	/// </summary>
 
 	public class MMBounds : MonoBehaviour 

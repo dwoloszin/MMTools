@@ -6,7 +6,7 @@ using System;
 namespace MoreMountains.Tools
 {	
 	/// <summary>
-	/// Various static methods used throughout the Infinite Runner Engine and the Corgi Engine.
+	/// Movement helpers
 	/// </summary>
 
 	public static class MMMovement 

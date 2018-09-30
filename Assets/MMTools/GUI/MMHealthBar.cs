@@ -3,8 +3,6 @@ using MoreMountains.Tools;
 using System.Collections;
 using UnityEngine.UI;
 
-// Taken straight from the Corgi Engine by More Mountains
-
 namespace MoreMountains.Tools
 {	
 	/// <summary>
@@ -309,7 +307,7 @@ namespace MoreMountains.Tools
 			if (_progressBar != null)
 			{
 				_progressBar.UpdateBar(currentHealth, minHealth, maxHealth)	;
-
+                
                 if (HideBarAtZero && _progressBar.BarProgress <= 0)
                 {
                     StartCoroutine(FinalHideBar());

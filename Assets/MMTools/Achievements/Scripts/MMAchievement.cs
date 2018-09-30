@@ -60,8 +60,8 @@ namespace MoreMountains.Tools
 
 			UnlockedStatus = true;
 
-			MMEventManager.TriggerEvent(new MMGameEvent("Save"));
-			MMEventManager.TriggerEvent(new MMAchievementUnlockedEvent(this));
+			MMGameEvent.Trigger("Save");
+			MMAchievementUnlockedEvent.Trigger(this);
 		}
 
 		/// <summary>
