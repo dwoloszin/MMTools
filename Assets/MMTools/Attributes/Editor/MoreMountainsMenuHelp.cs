@@ -10,7 +10,7 @@ namespace MoreMountains.Tools
 	/// </summary>
 	public static class MoreMountainsMenuHelp 
 	{
-		[MenuItem("More Mountains/Enable Help in Inspectors",false,0)]
+		[MenuItem("Tools/More Mountains/Enable Help in Inspectors", false,0)]
 		/// <summary>
 		/// Adds a menu item to enable help
 		/// </summary>
@@ -19,7 +19,7 @@ namespace MoreMountains.Tools
 			SetHelpEnabled(true);
 		}
 
-		[MenuItem("More Mountains/Enable Help in Inspectors", true)]
+		[MenuItem("Tools/More Mountains/Enable Help in Inspectors", true)]
 		/// <summary>
 		/// Conditional method to determine if the "enable help" entry should be greyed or not
 		/// </summary>
@@ -28,7 +28,7 @@ namespace MoreMountains.Tools
 			return !HelpEnabled();
 		}
 
-		[MenuItem("More Mountains/Disable Help in Inspectors",false,1)]
+		[MenuItem("Tools/More Mountains/Disable Help in Inspectors", false,1)]
 		/// <summary>
 		/// Adds a menu item to disable help
 		/// </summary>
@@ -37,7 +37,7 @@ namespace MoreMountains.Tools
 			SetHelpEnabled(false);
 		}
 		 
-		[MenuItem("More Mountains/Disable Help in Inspectors", true)]
+		[MenuItem("Tools/More Mountains/Disable Help in Inspectors", true)]
 		/// <summary>
 		/// Conditional method to determine if the "disable help" entry should be greyed or not
 		/// </summary>
