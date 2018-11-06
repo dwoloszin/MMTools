@@ -32,8 +32,16 @@ namespace MoreMountains.Tools
 			// we initialize the list we'll use to 
 			_pooledGameObjects = new List<GameObject>();
 
-			// we add to the pool the specified number of objects
-	        for (int i = 0; i < PoolSize; i++)
+            int objectsToSpawn = PoolSize;
+
+            if (_objectPool != null)
+            {
+                objectsToSpawn -= _objectPool.PooledGameObjects.Count;
+                _pooledGameObjects = new List<GameObject>(_objectPool.PooledGameObjects);
+            }
+
+            // we add to the pool the specified number of objects
+            for (int i = 0; i < objectsToSpawn; i++)
 	        {
 	            AddOneObjectToThePool ();
 	        }
@@ -89,9 +97,13 @@ namespace MoreMountains.Tools
 			{
 				newGameObject.transform.SetParent(_waitingPool.transform);	
 			}
-			newGameObject.name=GameObjectToPool.name+"-"+_pooledGameObjects.Count;
+			newGameObject.name = GameObjectToPool.name + "-" + _pooledGameObjects.Count;
+
 			_pooledGameObjects.Add(newGameObject);
-			return newGameObject;
+
+            _objectPool.PooledGameObjects.Add(newGameObject);
+
+            return newGameObject;
 		}
 	}
 }

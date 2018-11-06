@@ -20,6 +20,7 @@ namespace MoreMountains.Tools
 
 		/// this object is just used to group the pooled objects
 		protected GameObject _waitingPool = null;
+        protected MMObjectPool _objectPool;
 
 		/// <summary>
 		/// On awake we fill our object pool
@@ -44,19 +45,24 @@ namespace MoreMountains.Tools
 			{
 				// we create a container that will hold all the instances we create
 				_waitingPool = new GameObject(DetermineObjectPoolName());
-				return;
+                _objectPool = _waitingPool.AddComponent<MMObjectPool>();
+                _objectPool.PooledGameObjects = new List<GameObject>();
+                return;
 			}
 			else
 			{
 				GameObject waitingPool = GameObject.Find (DetermineObjectPoolName ());
 				if (waitingPool != null)
-				{
-					_waitingPool = waitingPool;
-				}
+                {
+                    _waitingPool = waitingPool;
+                    _objectPool = _waitingPool.GetComponentNoAlloc<MMObjectPool>();
+                }
 				else
 				{
 					_waitingPool = new GameObject(DetermineObjectPoolName());
-				}
+                    _objectPool = _waitingPool.AddComponent<MMObjectPool>();
+                    _objectPool.PooledGameObjects = new List<GameObject>();
+                }
 			}
 		}
 
